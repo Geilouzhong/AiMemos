@@ -113,6 +113,7 @@ type SignInRequest struct {
 	//
 	//	*SignInRequest_PasswordCredentials_
 	//	*SignInRequest_SsoCredentials
+	//	*SignInRequest_GuestCredentials_
 	Credentials   isSignInRequest_Credentials `protobuf_oneof:"credentials"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -173,6 +174,15 @@ func (x *SignInRequest) GetSsoCredentials() *SignInRequest_SSOCredentials {
 	return nil
 }
 
+func (x *SignInRequest) GetGuestCredentials() *SignInRequest_GuestCredentials {
+	if x != nil {
+		if x, ok := x.Credentials.(*SignInRequest_GuestCredentials_); ok {
+			return x.GuestCredentials
+		}
+	}
+	return nil
+}
+
 type isSignInRequest_Credentials interface {
 	isSignInRequest_Credentials()
 }
@@ -187,9 +197,16 @@ type SignInRequest_SsoCredentials struct {
 	SsoCredentials *SignInRequest_SSOCredentials `protobuf:"bytes,2,opt,name=sso_credentials,json=ssoCredentials,proto3,oneof"`
 }
 
+type SignInRequest_GuestCredentials_ struct {
+	// Guest code authentication.
+	GuestCredentials *SignInRequest_GuestCredentials `protobuf:"bytes,3,opt,name=guest_credentials,json=guestCredentials,proto3,oneof"`
+}
+
 func (*SignInRequest_PasswordCredentials_) isSignInRequest_Credentials() {}
 
 func (*SignInRequest_SsoCredentials) isSignInRequest_Credentials() {}
+
+func (*SignInRequest_GuestCredentials_) isSignInRequest_Credentials() {}
 
 type SignInResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -511,6 +528,52 @@ func (x *SignInRequest_SSOCredentials) GetCodeVerifier() string {
 	return ""
 }
 
+// Nested message for guest authentication credentials.
+type SignInRequest_GuestCredentials struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The guest code.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SignInRequest_GuestCredentials) Reset() {
+	*x = SignInRequest_GuestCredentials{}
+	mi := &file_api_v1_auth_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInRequest_GuestCredentials) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInRequest_GuestCredentials) ProtoMessage() {}
+
+func (x *SignInRequest_GuestCredentials) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_auth_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignInRequest_GuestCredentials.ProtoReflect.Descriptor instead.
+func (*SignInRequest_GuestCredentials) Descriptor() ([]byte, []int) {
+	return file_api_v1_auth_service_proto_rawDescGZIP(), []int{2, 2}
+}
+
+func (x *SignInRequest_GuestCredentials) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 var File_api_v1_auth_service_proto protoreflect.FileDescriptor
 
 const file_api_v1_auth_service_proto_rawDesc = "" +
@@ -518,10 +581,11 @@ const file_api_v1_auth_service_proto_rawDesc = "" +
 	"\x19api/v1/auth_service.proto\x12\fmemos.api.v1\x1a\x19api/v1/user_service.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x17\n" +
 	"\x15GetCurrentUserRequest\"@\n" +
 	"\x16GetCurrentUserResponse\x12&\n" +
-	"\x04user\x18\x01 \x01(\v2\x12.memos.api.v1.UserR\x04user\"\xce\x03\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.memos.api.v1.UserR\x04user\"\xd8\x04\n" +
 	"\rSignInRequest\x12d\n" +
 	"\x14password_credentials\x18\x01 \x01(\v2/.memos.api.v1.SignInRequest.PasswordCredentialsH\x00R\x13passwordCredentials\x12U\n" +
-	"\x0fsso_credentials\x18\x02 \x01(\v2*.memos.api.v1.SignInRequest.SSOCredentialsH\x00R\x0essoCredentials\x1aW\n" +
+	"\x0fsso_credentials\x18\x02 \x01(\v2*.memos.api.v1.SignInRequest.SSOCredentialsH\x00R\x0essoCredentials\x12[\n" +
+	"\x11guest_credentials\x18\x03 \x01(\v2,.memos.api.v1.SignInRequest.GuestCredentialsH\x00R\x10guestCredentials\x1aW\n" +
 	"\x13PasswordCredentials\x12\x1f\n" +
 	"\busername\x18\x01 \x01(\tB\x03\xe0A\x02R\busername\x12\x1f\n" +
 	"\bpassword\x18\x02 \x01(\tB\x03\xe0A\x02R\bpassword\x1a\x97\x01\n" +
@@ -529,7 +593,9 @@ const file_api_v1_auth_service_proto_rawDesc = "" +
 	"\x06idp_id\x18\x01 \x01(\x05B\x03\xe0A\x02R\x05idpId\x12\x17\n" +
 	"\x04code\x18\x02 \x01(\tB\x03\xe0A\x02R\x04code\x12&\n" +
 	"\fredirect_uri\x18\x03 \x01(\tB\x03\xe0A\x02R\vredirectUri\x12(\n" +
-	"\rcode_verifier\x18\x04 \x01(\tB\x03\xe0A\x01R\fcodeVerifierB\r\n" +
+	"\rcode_verifier\x18\x04 \x01(\tB\x03\xe0A\x01R\fcodeVerifier\x1a+\n" +
+	"\x10GuestCredentials\x12\x17\n" +
+	"\x04code\x18\x01 \x01(\tB\x03\xe0A\x02R\x04codeB\r\n" +
 	"\vcredentials\"\xae\x01\n" +
 	"\x0eSignInResponse\x12&\n" +
 	"\x04user\x18\x01 \x01(\v2\x12.memos.api.v1.UserR\x04user\x12!\n" +
@@ -560,7 +626,7 @@ func file_api_v1_auth_service_proto_rawDescGZIP() []byte {
 	return file_api_v1_auth_service_proto_rawDescData
 }
 
-var file_api_v1_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_v1_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_api_v1_auth_service_proto_goTypes = []any{
 	(*GetCurrentUserRequest)(nil),             // 0: memos.api.v1.GetCurrentUserRequest
 	(*GetCurrentUserResponse)(nil),            // 1: memos.api.v1.GetCurrentUserResponse
@@ -571,30 +637,32 @@ var file_api_v1_auth_service_proto_goTypes = []any{
 	(*RefreshTokenResponse)(nil),              // 6: memos.api.v1.RefreshTokenResponse
 	(*SignInRequest_PasswordCredentials)(nil), // 7: memos.api.v1.SignInRequest.PasswordCredentials
 	(*SignInRequest_SSOCredentials)(nil),      // 8: memos.api.v1.SignInRequest.SSOCredentials
-	(*User)(nil),                              // 9: memos.api.v1.User
-	(*timestamppb.Timestamp)(nil),             // 10: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                     // 11: google.protobuf.Empty
+	(*SignInRequest_GuestCredentials)(nil),    // 9: memos.api.v1.SignInRequest.GuestCredentials
+	(*User)(nil),                              // 10: memos.api.v1.User
+	(*timestamppb.Timestamp)(nil),             // 11: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                     // 12: google.protobuf.Empty
 }
 var file_api_v1_auth_service_proto_depIdxs = []int32{
-	9,  // 0: memos.api.v1.GetCurrentUserResponse.user:type_name -> memos.api.v1.User
+	10, // 0: memos.api.v1.GetCurrentUserResponse.user:type_name -> memos.api.v1.User
 	7,  // 1: memos.api.v1.SignInRequest.password_credentials:type_name -> memos.api.v1.SignInRequest.PasswordCredentials
 	8,  // 2: memos.api.v1.SignInRequest.sso_credentials:type_name -> memos.api.v1.SignInRequest.SSOCredentials
-	9,  // 3: memos.api.v1.SignInResponse.user:type_name -> memos.api.v1.User
-	10, // 4: memos.api.v1.SignInResponse.access_token_expires_at:type_name -> google.protobuf.Timestamp
-	10, // 5: memos.api.v1.RefreshTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,  // 6: memos.api.v1.AuthService.GetCurrentUser:input_type -> memos.api.v1.GetCurrentUserRequest
-	2,  // 7: memos.api.v1.AuthService.SignIn:input_type -> memos.api.v1.SignInRequest
-	4,  // 8: memos.api.v1.AuthService.SignOut:input_type -> memos.api.v1.SignOutRequest
-	5,  // 9: memos.api.v1.AuthService.RefreshToken:input_type -> memos.api.v1.RefreshTokenRequest
-	1,  // 10: memos.api.v1.AuthService.GetCurrentUser:output_type -> memos.api.v1.GetCurrentUserResponse
-	3,  // 11: memos.api.v1.AuthService.SignIn:output_type -> memos.api.v1.SignInResponse
-	11, // 12: memos.api.v1.AuthService.SignOut:output_type -> google.protobuf.Empty
-	6,  // 13: memos.api.v1.AuthService.RefreshToken:output_type -> memos.api.v1.RefreshTokenResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	9,  // 3: memos.api.v1.SignInRequest.guest_credentials:type_name -> memos.api.v1.SignInRequest.GuestCredentials
+	10, // 4: memos.api.v1.SignInResponse.user:type_name -> memos.api.v1.User
+	11, // 5: memos.api.v1.SignInResponse.access_token_expires_at:type_name -> google.protobuf.Timestamp
+	11, // 6: memos.api.v1.RefreshTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: memos.api.v1.AuthService.GetCurrentUser:input_type -> memos.api.v1.GetCurrentUserRequest
+	2,  // 8: memos.api.v1.AuthService.SignIn:input_type -> memos.api.v1.SignInRequest
+	4,  // 9: memos.api.v1.AuthService.SignOut:input_type -> memos.api.v1.SignOutRequest
+	5,  // 10: memos.api.v1.AuthService.RefreshToken:input_type -> memos.api.v1.RefreshTokenRequest
+	1,  // 11: memos.api.v1.AuthService.GetCurrentUser:output_type -> memos.api.v1.GetCurrentUserResponse
+	3,  // 12: memos.api.v1.AuthService.SignIn:output_type -> memos.api.v1.SignInResponse
+	12, // 13: memos.api.v1.AuthService.SignOut:output_type -> google.protobuf.Empty
+	6,  // 14: memos.api.v1.AuthService.RefreshToken:output_type -> memos.api.v1.RefreshTokenResponse
+	11, // [11:15] is the sub-list for method output_type
+	7,  // [7:11] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_auth_service_proto_init() }
@@ -606,6 +674,7 @@ func file_api_v1_auth_service_proto_init() {
 	file_api_v1_auth_service_proto_msgTypes[2].OneofWrappers = []any{
 		(*SignInRequest_PasswordCredentials_)(nil),
 		(*SignInRequest_SsoCredentials)(nil),
+		(*SignInRequest_GuestCredentials_)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -613,7 +682,7 @@ func file_api_v1_auth_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_auth_service_proto_rawDesc), len(file_api_v1_auth_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

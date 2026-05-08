@@ -18,7 +18,8 @@ CREATE TABLE user (
   nickname TEXT NOT NULL DEFAULT '',
   password_hash TEXT NOT NULL,
   avatar_url TEXT NOT NULL DEFAULT '',
-  description TEXT NOT NULL DEFAULT ''
+  description TEXT NOT NULL DEFAULT '',
+  is_guest INTEGER NOT NULL CHECK (is_guest IN (0, 1)) DEFAULT 0
 );
 
 -- user_setting

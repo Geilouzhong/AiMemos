@@ -78,6 +78,12 @@ message SignInRequest {
     string code_verifier = 4 [(google.api.field_behavior) = OPTIONAL];
   }
 
+  // Nested message for guest authentication credentials.
+  message GuestCredentials {
+    // The guest code.
+    string code = 1 [(google.api.field_behavior) = REQUIRED];
+  }
+
   // Authentication credentials. Provide one method.
   oneof credentials {
     // Username and password authentication.
@@ -85,6 +91,9 @@ message SignInRequest {
 
     // SSO provider authentication.
     SSOCredentials sso_credentials = 2;
+
+    // Guest code authentication.
+    GuestCredentials guest_credentials = 3;
   }
 }
 

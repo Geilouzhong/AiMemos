@@ -53,6 +53,7 @@ type User struct {
 	PasswordHash string
 	AvatarURL    string
 	Description  string
+	IsGuest      bool
 }
 
 type UpdateUser struct {
@@ -68,6 +69,7 @@ type UpdateUser struct {
 	AvatarURL    *string
 	PasswordHash *string
 	Description  *string
+	IsGuest      *bool
 }
 
 type FindUser struct {

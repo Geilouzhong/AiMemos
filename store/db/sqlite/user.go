@@ -11,9 +11,9 @@ import (
 )
 
 func (d *DB) CreateUser(ctx context.Context, create *store.User) (*store.User, error) {
-	fields := []string{"`username`", "`role`", "`email`", "`nickname`", "`password_hash`, `avatar_url`"}
-	placeholder := []string{"?", "?", "?", "?", "?", "?"}
-	args := []any{create.Username, create.Role, create.Email, create.Nickname, create.PasswordHash, create.AvatarURL}
+	fields := []string{"`username`", "`role`", "`email`", "`nickname`", "`password_hash`", "`avatar_url`", "`is_guest`"}
+	placeholder := []string{"?", "?", "?", "?", "?", "?", "?"}
+	args := []any{create.Username, create.Role, create.Email, create.Nickname, create.PasswordHash, create.AvatarURL, create.IsGuest}
 	stmt := "INSERT INTO user (" + strings.Join(fields, ", ") + ") VALUES (" + strings.Join(placeholder, ", ") + ") RETURNING id, description, created_ts, updated_ts, row_status"
 	if err := d.db.QueryRowContext(ctx, stmt, args...).Scan(
 		&create.ID,
@@ -57,13 +57,16 @@ func (d *DB) UpdateUser(ctx context.Context, update *store.UpdateUser) (*store.U
 	if v := update.Role; v != nil {
 		set, args = append(set, "role = ?"), append(args, *v)
 	}
+	if v := update.IsGuest; v != nil {
+		set, args = append(set, "is_guest = ?"), append(args, *v)
+	}
 	args = append(args, update.ID)
 
 	query := `
 		UPDATE user
 		SET ` + strings.Join(set, ", ") + `
 		WHERE id = ?
-		RETURNING id, username, role, email, nickname, password_hash, avatar_url, description, created_ts, updated_ts, row_status
+		RETURNING id, username, role, email, nickname, password_hash, avatar_url, description, is_guest, created_ts, updated_ts, row_status
 	`
 	user := &store.User{}
 	if err := d.db.QueryRowContext(ctx, query, args...).Scan(
@@ -75,6 +78,7 @@ func (d *DB) UpdateUser(ctx context.Context, update *store.UpdateUser) (*store.U
 		&user.PasswordHash,
 		&user.AvatarURL,
 		&user.Description,
+		&user.IsGuest,
 		&user.CreatedTs,
 		&user.UpdatedTs,
 		&user.RowStatus,
@@ -110,7 +114,7 @@ func (d *DB) ListUsers(ctx context.Context, find *store.FindUser) ([]*store.User
 
 	orderBy := []string{"created_ts DESC", "row_status DESC"}
 	query := `
-		SELECT 
+		SELECT
 			id,
 			username,
 			role,
@@ -119,6 +123,7 @@ func (d *DB) ListUsers(ctx context.Context, find *store.FindUser) ([]*store.User
 			password_hash,
 			avatar_url,
 			description,
+			is_guest,
 			created_ts,
 			updated_ts,
 			row_status
@@ -146,6 +151,7 @@ func (d *DB) ListUsers(ctx context.Context, find *store.FindUser) ([]*store.User
 			&user.PasswordHash,
 			&user.AvatarURL,
 			&user.Description,
+			&user.IsGuest,
 			&user.CreatedTs,
 			&user.UpdatedTs,
 			&user.RowStatus,

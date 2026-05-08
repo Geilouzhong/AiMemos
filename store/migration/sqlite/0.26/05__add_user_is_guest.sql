@@ -1,0 +1,1 @@
+ALTER TABLE user ADD COLUMN is_guest INTEGER NOT NULL CHECK (is_guest IN (0, 1)) DEFAULT 0;

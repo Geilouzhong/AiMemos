@@ -201,12 +201,14 @@ func (in *RecoveryInterceptor) logPanic(procedure string, panicValue any) {
 // Role-based authorization (admin checks) remains in the service layer.
 type AuthInterceptor struct {
 	authenticator *auth.Authenticator
+	store         *store.Store
 }
 
 // NewAuthInterceptor creates a new auth interceptor.
 func NewAuthInterceptor(store *store.Store, secret string) *AuthInterceptor {
 	return &AuthInterceptor{
 		authenticator: auth.NewAuthenticator(store, secret),
+		store:         store,
 	}
 }
 
@@ -220,6 +222,16 @@ func (in *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 		// Enforce authentication for non-public methods
 		if result == nil && !IsPublicMethod(req.Spec().Procedure) {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("authentication required"))
+		}
+
+		if result != nil && IsGuestWriteBlockedMethod(req.Spec().Procedure) {
+			isGuest, err := in.isGuestUser(ctx, result)
+			if err != nil {
+				return nil, connect.NewError(connect.CodeInternal, errors.New("failed to verify guest user"))
+			}
+			if isGuest {
+				return nil, connect.NewError(connect.CodePermissionDenied, errors.New("guest user cannot perform write operations"))
+			}
 		}
 
 		// Set context based on auth result
@@ -236,6 +248,29 @@ func (in *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 
 		return next(ctx, req)
 	}
+}
+
+func (in *AuthInterceptor) isGuestUser(ctx context.Context, result *auth.AuthResult) (bool, error) {
+	if result == nil {
+		return false, nil
+	}
+
+	if result.User != nil {
+		return result.User.IsGuest, nil
+	}
+
+	if result.Claims != nil {
+		user, err := in.store.GetUser(ctx, &store.FindUser{ID: &result.Claims.UserID})
+		if err != nil {
+			return false, err
+		}
+		if user == nil {
+			return false, nil
+		}
+		return user.IsGuest, nil
+	}
+
+	return false, nil
 }
 
 func (*AuthInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {

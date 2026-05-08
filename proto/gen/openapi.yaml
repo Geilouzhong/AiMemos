@@ -2742,6 +2742,19 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/SignInRequest_SSOCredentials'
                     description: SSO provider authentication.
+                guestCredentials:
+                    allOf:
+                        - $ref: '#/components/schemas/SignInRequest_GuestCredentials'
+                    description: Guest code authentication.
+        SignInRequest_GuestCredentials:
+            required:
+                - code
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: The guest code.
+            description: Nested message for guest authentication credentials.
         SignInRequest_PasswordCredentials:
             required:
                 - username

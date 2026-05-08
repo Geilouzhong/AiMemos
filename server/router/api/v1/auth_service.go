@@ -27,6 +27,7 @@ import (
 
 const (
 	unmatchedUsernameAndPasswordError = "unmatched username and password"
+	invalidGuestCodeError             = "invalid guest code"
 )
 
 // GetCurrentUser returns the authenticated user's information.
@@ -166,6 +167,21 @@ func (s *APIV1Service) SignIn(ctx context.Context, request *v1pb.SignInRequest) 
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "failed to create user, error: %v", err)
 			}
+		}
+		existingUser = user
+	} else if guestCredentials := request.GetGuestCredentials(); guestCredentials != nil {
+		code := strings.TrimSpace(guestCredentials.Code)
+		if code == "" {
+			return nil, status.Errorf(codes.InvalidArgument, invalidGuestCodeError)
+		}
+		user, err := s.Store.GetUser(ctx, &store.FindUser{
+			Username: &code,
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to get user, error: %v", err)
+		}
+		if user == nil || !user.IsGuest {
+			return nil, status.Errorf(codes.InvalidArgument, invalidGuestCodeError)
 		}
 		existingUser = user
 	}
