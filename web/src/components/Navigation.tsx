@@ -27,6 +27,7 @@ const Navigation = (props: Props) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { data: notifications = [] } = useNotifications();
+  const isSignedInUser = Boolean(currentUser && !currentUser.isGuest);
 
   const homeNavLink: NavLinkItem = {
     id: "header-memos",
@@ -69,14 +70,14 @@ const Navigation = (props: Props) => {
     icon: <UserCircleIcon className="w-6 h-auto shrink-0" />,
   };
 
-  const navLinks: NavLinkItem[] = currentUser
-    ? [...(currentUser.isGuest ? [] : [homeNavLink]), exploreNavLink, attachmentsNavLink, inboxNavLink]
+  const navLinks: NavLinkItem[] = isSignedInUser
+    ? [homeNavLink, exploreNavLink, attachmentsNavLink, inboxNavLink]
     : [exploreNavLink, signInNavLink];
 
   return (
     <header className={cn("w-full h-full overflow-auto flex flex-col justify-between items-start gap-4 hide-scrollbar", className)}>
       <div className="w-full px-1 py-1 flex flex-col justify-start items-start space-y-2 overflow-auto overflow-x-hidden hide-scrollbar shrink">
-        <NavLink className="mb-3 cursor-default" to={currentUser && !currentUser.isGuest ? Routes.ROOT : Routes.EXPLORE}>
+        <NavLink className="mb-3 cursor-default" to={isSignedInUser ? Routes.ROOT : Routes.EXPLORE}>
           <MemosLogo collapsed={collapsed} />
         </NavLink>
         {navLinks.map((navLink) => (
@@ -113,7 +114,7 @@ const Navigation = (props: Props) => {
           </NavLink>
         ))}
       </div>
-      {currentUser && (
+      {isSignedInUser && (
         <div className={cn("w-full flex flex-col justify-end", props.collapsed ? "items-center" : "items-start pl-3")}>
           <UserMenu collapsed={collapsed} />
         </div>

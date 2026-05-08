@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import App from "@/App";
+import useCurrentUser from "@/hooks/useCurrentUser";
 import MainLayout from "@/layouts/MainLayout";
 import RootLayout from "@/layouts/RootLayout";
 import Home from "@/pages/Home";
@@ -25,6 +26,22 @@ import { ROUTES } from "./routes";
 export const Routes = ROUTES;
 export { ROUTES };
 
+const GuestRedirect = () => {
+  const currentUser = useCurrentUser();
+  if (currentUser?.isGuest) {
+    return <Explore />;
+  }
+  return <Home />;
+};
+
+const SignedInOnlyRoute = ({ children }: { children: JSX.Element }) => {
+  const currentUser = useCurrentUser();
+  if (!currentUser || currentUser.isGuest) {
+    return <PermissionDenied />;
+  }
+  return children;
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -46,15 +63,43 @@ const router = createBrowserRouter([
           {
             element: <MainLayout />,
             children: [
-              { path: "", element: <Home /> },
+              { path: "", element: <GuestRedirect /> },
               { path: Routes.EXPLORE, element: <Explore /> },
-              { path: Routes.ARCHIVED, element: <Archived /> },
+              {
+                path: Routes.ARCHIVED,
+                element: (
+                  <SignedInOnlyRoute>
+                    <Archived />
+                  </SignedInOnlyRoute>
+                ),
+              },
               { path: "u/:username", element: <UserProfile /> },
             ],
           },
-          { path: Routes.ATTACHMENTS, element: <Attachments /> },
-          { path: Routes.INBOX, element: <Inboxes /> },
-          { path: Routes.SETTING, element: <Setting /> },
+          {
+            path: Routes.ATTACHMENTS,
+            element: (
+              <SignedInOnlyRoute>
+                <Attachments />
+              </SignedInOnlyRoute>
+            ),
+          },
+          {
+            path: Routes.INBOX,
+            element: (
+              <SignedInOnlyRoute>
+                <Inboxes />
+              </SignedInOnlyRoute>
+            ),
+          },
+          {
+            path: Routes.SETTING,
+            element: (
+              <SignedInOnlyRoute>
+                <Setting />
+              </SignedInOnlyRoute>
+            ),
+          },
           { path: "memos/:uid", element: <MemoDetail /> },
           { path: "403", element: <PermissionDenied /> },
           { path: "404", element: <NotFound /> },

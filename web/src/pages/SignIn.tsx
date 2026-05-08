@@ -24,9 +24,9 @@ const SignIn = () => {
   const { generalSetting: instanceGeneralSetting } = useInstance();
   const [signInMode, setSignInMode] = useState<"password" | "guest">("password");
 
-  // Redirect to root page if already signed in.
+  // Redirect to root page if already signed in as a normal user.
   useEffect(() => {
-    if (currentUser?.name) {
+    if (currentUser?.name && !currentUser.isGuest) {
       window.location.href = Routes.ROOT;
     }
   }, [currentUser]);
