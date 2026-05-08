@@ -12,7 +12,12 @@
     "new-password": "新密码",
     "repeat-new-password": "重复新密码",
     "sign-in-tip": "已有账户？",
-    "sign-up-tip": "还没有账户？"
+    "sign-up-tip": "还没有账户？",
+    "password-sign-in": "密码登录",
+    "guest-sign-in": "访客登录",
+    "guest-code": "访客码",
+    "guest-code-placeholder": "请输入访客码",
+    "guest-sign-in-failed": "访客登录失败。"
   },
   "common": {
     "about": "关于",

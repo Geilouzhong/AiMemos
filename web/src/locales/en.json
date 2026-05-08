@@ -12,7 +12,12 @@
     "new-password": "New password",
     "repeat-new-password": "Repeat the new password",
     "sign-in-tip": "Already have an account?",
-    "sign-up-tip": "Don't have an account yet?"
+    "sign-up-tip": "Don't have an account yet?",
+    "password-sign-in": "Password",
+    "guest-sign-in": "Guest",
+    "guest-code": "Guest code",
+    "guest-code-placeholder": "Enter guest code",
+    "guest-sign-in-failed": "Failed to sign in as guest."
   },
   "common": {
     "about": "About",

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import AuthFooter from "@/components/AuthFooter";
+import GuestSignInForm from "@/components/GuestSignInForm";
 import PasswordSignInForm from "@/components/PasswordSignInForm";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ const SignIn = () => {
   const currentUser = useCurrentUser();
   const [identityProviderList, setIdentityProviderList] = useState<IdentityProvider[]>([]);
   const { generalSetting: instanceGeneralSetting } = useInstance();
+  const [signInMode, setSignInMode] = useState<"password" | "guest">("password");
 
   // Redirect to root page if already signed in.
   useEffect(() => {
@@ -28,6 +30,12 @@ const SignIn = () => {
       window.location.href = Routes.ROOT;
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (instanceGeneralSetting.disallowPasswordAuth) {
+      setSignInMode("guest");
+    }
+  }, [instanceGeneralSetting.disallowPasswordAuth]);
 
   // Prepare identity provider list.
   useEffect(() => {
@@ -78,12 +86,29 @@ const SignIn = () => {
           <img className="h-14 w-auto rounded-full shadow" src={instanceGeneralSetting.customProfile?.logoUrl || "/logo.webp"} alt="" />
           <p className="ml-2 text-5xl text-foreground opacity-80">{instanceGeneralSetting.customProfile?.title || "Memos"}</p>
         </div>
-        {!instanceGeneralSetting.disallowPasswordAuth ? (
-          <PasswordSignInForm />
+        <div className="w-full grid grid-cols-2 gap-2 mb-2">
+          <Button
+            type="button"
+            variant={signInMode === "password" ? "default" : "outline"}
+            onClick={() => setSignInMode("password")}
+            disabled={instanceGeneralSetting.disallowPasswordAuth}
+          >
+            {t("auth.password-sign-in")}
+          </Button>
+          <Button type="button" variant={signInMode === "guest" ? "default" : "outline"} onClick={() => setSignInMode("guest")}>
+            {t("auth.guest-sign-in")}
+          </Button>
+        </div>
+        {signInMode === "password" ? (
+          !instanceGeneralSetting.disallowPasswordAuth ? (
+            <PasswordSignInForm />
+          ) : (
+            <p className="w-full text-2xl mt-2 text-muted-foreground">Password auth is not allowed.</p>
+          )
         ) : (
-          identityProviderList.length === 0 && <p className="w-full text-2xl mt-2 text-muted-foreground">Password auth is not allowed.</p>
+          <GuestSignInForm />
         )}
-        {!instanceGeneralSetting.disallowUserRegistration && !instanceGeneralSetting.disallowPasswordAuth && (
+        {signInMode === "password" && !instanceGeneralSetting.disallowUserRegistration && !instanceGeneralSetting.disallowPasswordAuth && (
           <p className="w-full mt-4 text-sm">
             <span className="text-muted-foreground">{t("auth.sign-up-tip")}</span>
             <Link to="/auth/signup" className="cursor-pointer ml-2 text-primary hover:underline" viewTransition>
@@ -93,14 +118,12 @@ const SignIn = () => {
         )}
         {identityProviderList.length > 0 && (
           <>
-            {!instanceGeneralSetting.disallowPasswordAuth && (
-              <div className="relative my-4 w-full">
-                <Separator />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-background px-2 text-xs text-muted-foreground">{t("common.or")}</span>
-                </div>
+            <div className="relative my-4 w-full">
+              <Separator />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="bg-background px-2 text-xs text-muted-foreground">{t("common.or")}</span>
               </div>
-            )}
+            </div>
             <div className="w-full flex flex-col space-y-2">
               {identityProviderList.map((identityProvider) => (
                 <Button
