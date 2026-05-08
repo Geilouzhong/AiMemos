@@ -67,10 +67,35 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 			result := authenticator.Authenticate(ctx, authHeader)
 
 			// Enforce authentication for non-public methods
-			// If rpcMethod cannot be determined, allow through, service layer will handle visibility checks
+			// If rpcMethod cannot be determined, continue and rely on service-layer authorization.
 			if result == nil && ok && !IsPublicMethod(rpcMethod) {
 				http.Error(w, `{"code": 16, "message": "authentication required"}`, http.StatusUnauthorized)
 				return
+			}
+
+			blockedForGuest := false
+			if ok {
+				blockedForGuest = IsGuestWriteBlockedMethod(rpcMethod)
+			} else {
+				blockedForGuest = IsGuestWriteBlockedGatewayRequest(r.Method, r.URL.Path)
+			}
+
+			if result != nil && blockedForGuest {
+				isGuest := false
+				if result.User != nil {
+					isGuest = result.User.IsGuest
+				} else if result.Claims != nil {
+					user, err := s.Store.GetUser(ctx, &store.FindUser{ID: &result.Claims.UserID})
+					if err != nil {
+						http.Error(w, `{"code": 13, "message": "failed to verify guest user"}`, http.StatusInternalServerError)
+						return
+					}
+					isGuest = user != nil && user.IsGuest
+				}
+				if isGuest {
+					http.Error(w, `{"code": 7, "message": "guest user cannot perform write operations"}`, http.StatusForbidden)
+					return
+				}
 			}
 
 			// Set context based on auth result (may be nil for public endpoints)
