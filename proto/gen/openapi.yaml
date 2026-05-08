@@ -2915,6 +2915,10 @@ components:
                     type: string
                     description: Output only. The last update timestamp.
                     format: date-time
+                isGuest:
+                    readOnly: true
+                    type: boolean
+                    description: Output only. Whether this user is a guest account.
         UserNotification:
             type: object
             properties:

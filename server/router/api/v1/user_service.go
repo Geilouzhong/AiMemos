@@ -915,6 +915,7 @@ func convertUserFromStore(user *store.User) *v1pb.User {
 		DisplayName: user.Nickname,
 		AvatarUrl:   user.AvatarURL,
 		Description: user.Description,
+		IsGuest:     user.IsGuest,
 	}
 	// Use the avatar URL instead of raw base64 image data to reduce the response size.
 	if user.AvatarURL != "" {

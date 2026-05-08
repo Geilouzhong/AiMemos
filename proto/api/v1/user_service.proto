@@ -201,6 +201,9 @@ message User {
   // Output only. The last update timestamp.
   google.protobuf.Timestamp update_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Whether this user is a guest account.
+  bool is_guest = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // User role enumeration.
   enum Role {
     ROLE_UNSPECIFIED = 0;
