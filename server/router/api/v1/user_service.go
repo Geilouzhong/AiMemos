@@ -161,11 +161,12 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 	if request.ValidateOnly {
 		// Perform validation checks without actually creating the user
 		return &v1pb.User{
-			Username:    request.User.Username,
-			Email:       request.User.Email,
-			DisplayName: request.User.DisplayName,
-			Role:        convertUserRoleFromStore(roleToAssign),
-			IsGuest:     isGuestToAssign,
+			Username:               request.User.Username,
+			Email:                  request.User.Email,
+			DisplayName:            request.User.DisplayName,
+			Role:                   convertUserRoleFromStore(roleToAssign),
+			IsGuest:                isGuestToAssign,
+			EnableActivityTracking:  request.User.EnableActivityTracking,
 		}, nil
 	}
 
@@ -181,6 +182,7 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 		Nickname:     request.User.DisplayName,
 		PasswordHash: string(passwordHash),
 		IsGuest:      isGuestToAssign,
+		EnableActivityTracking: request.User.EnableActivityTracking,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create user: %v", err)
@@ -293,6 +295,11 @@ func (s *APIV1Service) UpdateUser(ctx context.Context, request *v1pb.UpdateUserR
 				return nil, status.Errorf(codes.PermissionDenied, "permission denied")
 			}
 			update.IsGuest = &request.User.IsGuest
+		case "enable_activity_tracking":
+			if currentUser.Role != store.RoleAdmin {
+				return nil, status.Errorf(codes.PermissionDenied, "permission denied")
+			}
+			update.EnableActivityTracking = &request.User.EnableActivityTracking
 		default:
 			return nil, status.Errorf(codes.InvalidArgument, "invalid update path: %s", field)
 		}

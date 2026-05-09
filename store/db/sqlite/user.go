@@ -11,9 +11,9 @@ import (
 )
 
 func (d *DB) CreateUser(ctx context.Context, create *store.User) (*store.User, error) {
-	fields := []string{"`username`", "`role`", "`email`", "`nickname`", "`password_hash`", "`avatar_url`", "`is_guest`"}
-	placeholder := []string{"?", "?", "?", "?", "?", "?", "?"}
-	args := []any{create.Username, create.Role, create.Email, create.Nickname, create.PasswordHash, create.AvatarURL, create.IsGuest}
+	fields := []string{"`username`", "`role`", "`email`", "`nickname`", "`password_hash`", "`avatar_url`", "`is_guest`", "`enable_activity_tracking`"}
+	placeholder := []string{"?", "?", "?", "?", "?", "?", "?", "?"}
+	args := []any{create.Username, create.Role, create.Email, create.Nickname, create.PasswordHash, create.AvatarURL, create.IsGuest, create.EnableActivityTracking}
 	stmt := "INSERT INTO user (" + strings.Join(fields, ", ") + ") VALUES (" + strings.Join(placeholder, ", ") + ") RETURNING id, description, created_ts, updated_ts, row_status"
 	if err := d.db.QueryRowContext(ctx, stmt, args...).Scan(
 		&create.ID,
@@ -60,13 +60,16 @@ func (d *DB) UpdateUser(ctx context.Context, update *store.UpdateUser) (*store.U
 	if v := update.IsGuest; v != nil {
 		set, args = append(set, "is_guest = ?"), append(args, *v)
 	}
+	if v := update.EnableActivityTracking; v != nil {
+		set, args = append(set, "enable_activity_tracking = ?"), append(args, *v)
+	}
 	args = append(args, update.ID)
 
 	query := `
 		UPDATE user
 		SET ` + strings.Join(set, ", ") + `
 		WHERE id = ?
-		RETURNING id, username, role, email, nickname, password_hash, avatar_url, description, is_guest, created_ts, updated_ts, row_status
+		RETURNING id, username, role, email, nickname, password_hash, avatar_url, description, is_guest, enable_activity_tracking, created_ts, updated_ts, row_status
 	`
 	user := &store.User{}
 	if err := d.db.QueryRowContext(ctx, query, args...).Scan(
@@ -79,6 +82,7 @@ func (d *DB) UpdateUser(ctx context.Context, update *store.UpdateUser) (*store.U
 		&user.AvatarURL,
 		&user.Description,
 		&user.IsGuest,
+		&user.EnableActivityTracking,
 		&user.CreatedTs,
 		&user.UpdatedTs,
 		&user.RowStatus,
@@ -124,6 +128,7 @@ func (d *DB) ListUsers(ctx context.Context, find *store.FindUser) ([]*store.User
 			avatar_url,
 			description,
 			is_guest,
+			enable_activity_tracking,
 			created_ts,
 			updated_ts,
 			row_status
@@ -152,6 +157,7 @@ func (d *DB) ListUsers(ctx context.Context, find *store.FindUser) ([]*store.User
 			&user.AvatarURL,
 			&user.Description,
 			&user.IsGuest,
+			&user.EnableActivityTracking,
 			&user.CreatedTs,
 			&user.UpdatedTs,
 			&user.RowStatus,

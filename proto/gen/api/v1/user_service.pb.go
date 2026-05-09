@@ -250,9 +250,12 @@ type User struct {
 	// Output only. The last update timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Optional. Whether this user is a guest account.
-	IsGuest       bool `protobuf:"varint,12,opt,name=is_guest,json=isGuest,proto3" json:"is_guest,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IsGuest bool `protobuf:"varint,12,opt,name=is_guest,json=isGuest,proto3" json:"is_guest,omitempty"`
+	// Optional. Whether activity tracking is enabled for this user.
+	// When true, the system logs this user's memo viewing activity to logs/memo_activity.log.
+	EnableActivityTracking bool `protobuf:"varint,13,opt,name=enable_activity_tracking,json=enableActivityTracking,proto3" json:"enable_activity_tracking,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -365,6 +368,13 @@ func (x *User) GetUpdateTime() *timestamppb.Timestamp {
 func (x *User) GetIsGuest() bool {
 	if x != nil {
 		return x.IsGuest
+	}
+	return false
+}
+
+func (x *User) GetEnableActivityTracking() bool {
+	if x != nil {
+		return x.EnableActivityTracking
 	}
 	return false
 }
@@ -2513,7 +2523,7 @@ var File_api_v1_user_service_proto protoreflect.FileDescriptor
 
 const file_api_v1_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x19api/v1/user_service.proto\x12\fmemos.api.v1\x1a\x13api/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe1\x04\n" +
+	"\x19api/v1/user_service.proto\x12\fmemos.api.v1\x1a\x13api/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x05\n" +
 	"\x04User\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x120\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x17.memos.api.v1.User.RoleB\x03\xe0A\x02R\x04role\x12\x1f\n" +
@@ -2530,7 +2540,8 @@ const file_api_v1_user_service_proto_rawDesc = "" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12\x1e\n" +
-	"\bis_guest\x18\f \x01(\bB\x03\xe0A\x01R\aisGuest\"1\n" +
+	"\bis_guest\x18\f \x01(\bB\x03\xe0A\x01R\aisGuest\x12=\n" +
+	"\x18enable_activity_tracking\x18\r \x01(\bB\x03\xe0A\x01R\x16enableActivityTracking\"1\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\t\n" +
 	"\x05ADMIN\x10\x02\x12\b\n" +

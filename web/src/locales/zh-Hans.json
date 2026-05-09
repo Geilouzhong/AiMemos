@@ -306,7 +306,8 @@
       "delete-warning-description": "此操作不可逆",
       "delete-success": "{{username}} 删除成功",
       "user": "普通用户",
-      "guest": "访客用户"
+      "guest": "访客用户",
+      "activity-tracking": "活动追踪"
     },
     "memo-related": "备忘录",
     "memo-related-settings": {

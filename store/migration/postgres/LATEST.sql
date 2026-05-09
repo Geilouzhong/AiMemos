@@ -18,7 +18,8 @@ CREATE TABLE "user" (
   password_hash TEXT NOT NULL,
   avatar_url TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
-  is_guest BOOLEAN NOT NULL DEFAULT FALSE
+  is_guest BOOLEAN NOT NULL DEFAULT FALSE,
+  enable_activity_tracking BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- user_setting

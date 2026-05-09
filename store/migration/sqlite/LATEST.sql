@@ -19,7 +19,8 @@ CREATE TABLE user (
   password_hash TEXT NOT NULL,
   avatar_url TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL DEFAULT '',
-  is_guest INTEGER NOT NULL CHECK (is_guest IN (0, 1)) DEFAULT 0
+  is_guest INTEGER NOT NULL CHECK (is_guest IN (0, 1)) DEFAULT 0,
+  enable_activity_tracking INTEGER NOT NULL CHECK (enable_activity_tracking IN (0, 1)) DEFAULT 0
 );
 
 -- user_setting

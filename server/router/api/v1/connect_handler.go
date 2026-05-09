@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"net/http"
 
 	"connectrpc.com/connect"
@@ -50,14 +51,22 @@ func (s *ConnectServiceHandler) RegisterConnectHandlers(mux *http.ServeMux, opts
 }
 
 // wrap converts (path, handler) return value to a struct for cleaner iteration.
+// 同时创建一个中间件，将 HTTP Request 存入 context，供后续的 activity logging 使用
 func wrap(path string, handler http.Handler) struct {
 	path    string
 	handler http.Handler
 } {
+	// 创建中间件，将 HTTP Request 存入 context
+	wrappedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 将 HTTP Request 存入 context，使用在 memo_service.go 中定义的 context key
+		ctx := context.WithValue(r.Context(), httpRequestContextKey{}, r)
+		handler.ServeHTTP(w, r.WithContext(ctx))
+	})
+
 	return struct {
 		path    string
 		handler http.Handler
-	}{path, handler}
+	}{path, wrappedHandler}
 }
 
 // convertGRPCError converts gRPC status errors to Connect errors.

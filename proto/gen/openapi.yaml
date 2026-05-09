@@ -2918,6 +2918,11 @@ components:
                 isGuest:
                     type: boolean
                     description: Optional. Whether this user is a guest account.
+                enableActivityTracking:
+                    type: boolean
+                    description: |-
+                        Optional. Whether activity tracking is enabled for this user.
+                         When true, the system logs this user's memo viewing activity to logs/memo_activity.log.
         UserNotification:
             type: object
             properties:

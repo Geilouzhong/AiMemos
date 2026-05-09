@@ -305,7 +305,8 @@
       "delete-warning-description": "THIS ACTION IS IRREVERSIBLE",
       "delete-success": "{{username}} deleted successfully",
       "user": "User",
-      "guest": "Guest user"
+      "guest": "Guest user",
+      "activity-tracking": "Activity tracking"
     },
     "memo-related": "Memo",
     "memo-related-settings": {

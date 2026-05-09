@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -279,6 +280,25 @@ func (s *APIV1Service) ListMemos(ctx context.Context, request *v1pb.ListMemosReq
 		memoMessages = append(memoMessages, memoMessage)
 	}
 
+	// 记录批量加载的 memo 查看活动（如果用户开启追踪）
+	user, err := s.fetchCurrentUser(ctx)
+	if err == nil && user != nil && user.EnableActivityTracking {
+		if req := getHTTPRequestFromContext(ctx); req != nil {
+			ip, port := extractIPAndPort(req.RemoteAddr)
+			// 异步记录日志，避免阻塞主流程
+			go func() {
+				for _, memo := range memos {
+					// 不记录自己创建的 memo
+					if memo.CreatorID != user.ID {
+						if err := logMemoActivity(user.ID, memo.UID, user.Username, ip, port); err != nil {
+							slog.Error("failed to log memo activity", "error", err)
+						}
+					}
+				}
+			}()
+		}
+	}
+
 	response := &v1pb.ListMemosResponse{
 		Memos:         memoMessages,
 		NextPageToken: nextPageToken,
@@ -331,6 +351,21 @@ func (s *APIV1Service) GetMemo(ctx context.Context, request *v1pb.GetMemoRequest
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert memo")
 	}
+
+	// 记录 memo 查看活动（如果用户开启追踪且不是查看自己的 memo）
+	user, err := s.fetchCurrentUser(ctx)
+	if err == nil && user != nil && user.EnableActivityTracking && memo.CreatorID != user.ID {
+		if req := getHTTPRequestFromContext(ctx); req != nil {
+			ip, port := extractIPAndPort(req.RemoteAddr)
+			// 异步记录日志，避免阻塞主流程
+			go func() {
+				if err := logMemoActivity(user.ID, memo.UID, user.Username, ip, port); err != nil {
+					slog.Error("failed to log memo activity", "error", err)
+				}
+			}()
+		}
+	}
+
 	return memoMessage, nil
 }
 
@@ -841,4 +876,18 @@ func (*APIV1Service) parseMemoOrderBy(orderBy string, memoFind *store.FindMemo) 
 	}
 
 	return nil
+}
+
+
+// httpRequestContextKey 是 context 的键类型，用于存储 HTTP Request
+type httpRequestContextKey struct{}
+
+// getHTTPRequestFromContext 从 context 中获取 HTTP Request
+// 这个函数需要在 connect_handler.go 中将 HTTP Request 存入 context
+func getHTTPRequestFromContext(ctx context.Context) *http.Request {
+	req, ok := ctx.Value(httpRequestContextKey{}).(*http.Request)
+	if !ok {
+		return nil
+	}
+	return req
 }

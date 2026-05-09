@@ -54,6 +54,7 @@ type User struct {
 	AvatarURL    string
 	Description  string
 	IsGuest      bool
+	EnableActivityTracking bool
 }
 
 type UpdateUser struct {
@@ -70,6 +71,7 @@ type UpdateUser struct {
 	PasswordHash *string
 	Description  *string
 	IsGuest      *bool
+	EnableActivityTracking *bool
 }
 
 type FindUser struct {

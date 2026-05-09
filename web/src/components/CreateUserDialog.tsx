@@ -26,7 +26,15 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
   const [user, setUser] = useState(
     create(
       UserSchema,
-      initialUser ? { name: initialUser.name, username: initialUser.username, role: initialUser.role, isGuest: initialUser.isGuest } : {},
+      initialUser
+        ? {
+            name: initialUser.name,
+            username: initialUser.username,
+            role: initialUser.role,
+            isGuest: initialUser.isGuest,
+            enableActivityTracking: initialUser.enableActivityTracking,
+          }
+        : {},
     ),
   );
   const requestState = useLoading(false);
@@ -40,6 +48,7 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
           username: initialUser.username,
           role: initialUser.role,
           isGuest: initialUser.isGuest,
+          enableActivityTracking: initialUser.enableActivityTracking,
         }),
       );
     } else {
@@ -78,6 +87,9 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
         }
         if (user.isGuest !== initialUser?.isGuest) {
           updateMask.push("is_guest");
+        }
+        if (user.enableActivityTracking !== initialUser?.enableActivityTracking) {
+          updateMask.push("enable_activity_tracking");
         }
         const userToUpdate = create(UserSchema, { ...user, name: initialUser?.name ?? user.name });
         await userServiceClient.updateUser({ user: userToUpdate, updateMask: create(FieldMaskSchema, { paths: updateMask }) });
@@ -160,6 +172,18 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
                   isGuest: checked,
                   role: checked ? User_Role.USER : user.role,
                   password: checked ? "" : user.password,
+                })
+              }
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-md border px-3 py-2">
+            <Label htmlFor="activity-tracking">{t("setting.member-section.activity-tracking")}</Label>
+            <Switch
+              id="activity-tracking"
+              checked={user.enableActivityTracking}
+              onCheckedChange={(checked) =>
+                setPartialUser({
+                  enableActivityTracking: checked,
                 })
               }
             />
