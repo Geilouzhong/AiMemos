@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	apiv1 "github.com/usememos/memos/proto/gen/api/v1"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -170,4 +171,85 @@ func TestCreateUserRegistration(t *testing.T) {
 		require.NotNil(t, createdUser)
 		require.Equal(t, apiv1.User_USER, createdUser.Role, "Unauthenticated users can only create USER role")
 	})
+
+	t.Run("CreateUser admin can create guest user", func(t *testing.T) {
+		ts := NewTestService(t)
+		defer ts.Cleanup()
+
+		adminUser, err := ts.CreateHostUser(ctx, "admin")
+		require.NoError(t, err)
+		adminCtx := ts.CreateUserContext(ctx, adminUser.ID)
+
+		createdUser, err := ts.Service.CreateUser(adminCtx, &apiv1.CreateUserRequest{
+			User: &apiv1.User{
+				Username: "guest001",
+				Password: "guest-pass",
+				IsGuest:  true,
+				Role:     apiv1.User_ADMIN,
+			},
+		})
+		require.NoError(t, err)
+		require.True(t, createdUser.IsGuest)
+		require.Equal(t, apiv1.User_USER, createdUser.Role)
+	})
+
+	t.Run("CreateUser unauthenticated cannot create guest user", func(t *testing.T) {
+		ts := NewTestService(t)
+		defer ts.Cleanup()
+
+		_, err := ts.CreateHostUser(ctx, "admin")
+		require.NoError(t, err)
+
+		createdUser, err := ts.Service.CreateUser(ctx, &apiv1.CreateUserRequest{
+			User: &apiv1.User{
+				Username: "guest002",
+				Password: "guest-pass",
+				IsGuest:  true,
+			},
+		})
+		require.NoError(t, err)
+		require.False(t, createdUser.IsGuest)
+	})
+}
+
+func TestUpdateUserGuestFlag(t *testing.T) {
+	ctx := context.Background()
+	ts := NewTestService(t)
+	defer ts.Cleanup()
+
+	adminUser, err := ts.CreateHostUser(ctx, "admin")
+	require.NoError(t, err)
+	adminCtx := ts.CreateUserContext(ctx, adminUser.ID)
+
+	createdUser, err := ts.Service.CreateUser(adminCtx, &apiv1.CreateUserRequest{
+		User: &apiv1.User{
+			Username: "member001",
+			Password: "password123",
+		},
+	})
+	require.NoError(t, err)
+
+	updatedUser, err := ts.Service.UpdateUser(adminCtx, &apiv1.UpdateUserRequest{
+		User: &apiv1.User{
+			Name:    createdUser.Name,
+			IsGuest: true,
+		},
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"is_guest"}},
+	})
+	require.NoError(t, err)
+	require.True(t, updatedUser.IsGuest)
+
+	nonAdminUser, err := ts.CreateRegularUser(ctx, "regular")
+	require.NoError(t, err)
+	nonAdminCtx := ts.CreateUserContext(ctx, nonAdminUser.ID)
+
+	_, err = ts.Service.UpdateUser(nonAdminCtx, &apiv1.UpdateUserRequest{
+		User: &apiv1.User{
+			Name:    createdUser.Name,
+			IsGuest: false,
+		},
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"is_guest"}},
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "permission denied")
 }

@@ -146,6 +146,13 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 		roleToAssign = store.RoleUser
 	}
 
+	// Determine whether guest identity can be assigned.
+	isGuestToAssign := request.User.IsGuest && currentUser != nil && currentUser.Role == store.RoleAdmin
+
+	if isGuestToAssign {
+		roleToAssign = store.RoleUser
+	}
+
 	if !base.UIDMatcher.MatchString(strings.ToLower(request.User.Username)) {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid username: %s", request.User.Username)
 	}
@@ -158,6 +165,7 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 			Email:       request.User.Email,
 			DisplayName: request.User.DisplayName,
 			Role:        convertUserRoleFromStore(roleToAssign),
+			IsGuest:     isGuestToAssign,
 		}, nil
 	}
 
@@ -172,6 +180,7 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 		Email:        request.User.Email,
 		Nickname:     request.User.DisplayName,
 		PasswordHash: string(passwordHash),
+		IsGuest:      isGuestToAssign,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create user: %v", err)
@@ -279,6 +288,11 @@ func (s *APIV1Service) UpdateUser(ctx context.Context, request *v1pb.UpdateUserR
 		case "state":
 			rowStatus := convertStateToStore(request.User.State)
 			update.RowStatus = &rowStatus
+		case "is_guest":
+			if currentUser.Role != store.RoleAdmin {
+				return nil, status.Errorf(codes.PermissionDenied, "permission denied")
+			}
+			update.IsGuest = &request.User.IsGuest
 		default:
 			return nil, status.Errorf(codes.InvalidArgument, "invalid update path: %s", field)
 		}
