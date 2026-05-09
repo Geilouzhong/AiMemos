@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { userServiceClient } from "@/connect";
 import useLoading from "@/hooks/useLoading";
 import { handleError } from "@/lib/error";
@@ -22,13 +23,25 @@ interface Props {
 
 function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: Props) {
   const t = useTranslate();
-  const [user, setUser] = useState(create(UserSchema, initialUser ? { username: initialUser.username, role: initialUser.role } : {}));
+  const [user, setUser] = useState(
+    create(
+      UserSchema,
+      initialUser ? { name: initialUser.name, username: initialUser.username, role: initialUser.role, isGuest: initialUser.isGuest } : {},
+    ),
+  );
   const requestState = useLoading(false);
   const isCreating = !initialUser;
 
   useEffect(() => {
     if (initialUser) {
-      setUser(create(UserSchema, { username: initialUser.username, role: initialUser.role }));
+      setUser(
+        create(UserSchema, {
+          name: initialUser.name,
+          username: initialUser.username,
+          role: initialUser.role,
+          isGuest: initialUser.isGuest,
+        }),
+      );
     } else {
       setUser(create(UserSchema, {}));
     }
@@ -42,7 +55,7 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
   };
 
   const handleConfirm = async () => {
-    if (isCreating && (!user.username || !user.password)) {
+    if (isCreating && (!user.username || (!user.isGuest && !user.password))) {
       toast.error("Username and password cannot be empty");
       return;
     }
@@ -63,7 +76,11 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
         if (user.role !== initialUser?.role) {
           updateMask.push("role");
         }
-        await userServiceClient.updateUser({ user, updateMask: create(FieldMaskSchema, { paths: updateMask }) });
+        if (user.isGuest !== initialUser?.isGuest) {
+          updateMask.push("is_guest");
+        }
+        const userToUpdate = create(UserSchema, { ...user, name: initialUser?.name ?? user.name });
+        await userServiceClient.updateUser({ user: userToUpdate, updateMask: create(FieldMaskSchema, { paths: updateMask }) });
         toast.success("Update user successfully");
       }
       requestState.setFinish();
@@ -98,27 +115,30 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
               }
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">{t("common.password")}</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder={t("common.password")}
-              autoComplete="off"
-              value={user.password}
-              onChange={(e) =>
-                setPartialUser({
-                  password: e.target.value,
-                })
-              }
-            />
-          </div>
+          {!user.isGuest && (
+            <div className="grid gap-2">
+              <Label htmlFor="password">{t("common.password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder={t("common.password")}
+                autoComplete="off"
+                value={user.password}
+                onChange={(e) =>
+                  setPartialUser({
+                    password: e.target.value,
+                  })
+                }
+              />
+            </div>
+          )}
           <div className="grid gap-2">
             <Label>{t("common.role")}</Label>
             <RadioGroup
               value={String(user.role)}
               onValueChange={(value) => setPartialUser({ role: Number(value) as User_Role })}
               className="flex flex-row gap-4"
+              disabled={user.isGuest}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value={String(User_Role.USER)} id="user" />
@@ -129,6 +149,20 @@ function CreateUserDialog({ open, onOpenChange, user: initialUser, onSuccess }: 
                 <Label htmlFor="admin">{t("setting.member-section.admin")}</Label>
               </div>
             </RadioGroup>
+          </div>
+          <div className="flex items-center justify-between rounded-md border px-3 py-2">
+            <Label htmlFor="guest-user">{t("setting.member-section.guest")}</Label>
+            <Switch
+              id="guest-user"
+              checked={user.isGuest}
+              onCheckedChange={(checked) =>
+                setPartialUser({
+                  isGuest: checked,
+                  role: checked ? User_Role.USER : user.role,
+                  password: checked ? "" : user.password,
+                })
+              }
+            />
           </div>
         </div>
         <DialogFooter>

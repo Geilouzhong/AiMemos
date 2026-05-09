@@ -305,7 +305,8 @@
       "delete-warning": "您确定要删除 {{username}} 吗？",
       "delete-warning-description": "此操作不可逆",
       "delete-success": "{{username}} 删除成功",
-      "user": "普通用户"
+      "user": "普通用户",
+      "guest": "访客用户"
     },
     "memo-related": "备忘录",
     "memo-related-settings": {

@@ -30,12 +30,14 @@ const MemberSection = () => {
   const [archiveTarget, setArchiveTarget] = useState<User | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<User | undefined>(undefined);
 
-  const stringifyUserRole = (role: User_Role) => {
-    if (role === User_Role.ADMIN) {
-      return t("setting.member-section.admin");
-    } else {
-      return t("setting.member-section.user");
+  const stringifyUserRole = (user: User) => {
+    if (user.isGuest) {
+      return t("setting.member-section.guest");
     }
+    if (user.role === User_Role.ADMIN) {
+      return t("setting.member-section.admin");
+    }
+    return t("setting.member-section.user");
   };
 
   const handleCreateUser = () => {
@@ -117,7 +119,7 @@ const MemberSection = () => {
           {
             key: "role",
             header: t("common.role"),
-            render: (_, user: User) => stringifyUserRole(user.role),
+            render: (_, user: User) => stringifyUserRole(user),
           },
           {
             key: "displayName",
