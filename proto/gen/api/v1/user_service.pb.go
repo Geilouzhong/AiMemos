@@ -249,7 +249,7 @@ type User struct {
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// Output only. The last update timestamp.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// Output only. Whether this user is a guest account.
+	// Optional. Whether this user is a guest account.
 	IsGuest       bool `protobuf:"varint,12,opt,name=is_guest,json=isGuest,proto3" json:"is_guest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2530,7 +2530,7 @@ const file_api_v1_user_service_proto_rawDesc = "" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12\x1e\n" +
-	"\bis_guest\x18\f \x01(\bB\x03\xe0A\x03R\aisGuest\"1\n" +
+	"\bis_guest\x18\f \x01(\bB\x03\xe0A\x01R\aisGuest\"1\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\t\n" +
 	"\x05ADMIN\x10\x02\x12\b\n" +
