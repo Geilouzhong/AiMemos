@@ -22,21 +22,16 @@ var PublicMethods = map[string]struct{}{
 	"/memos.api.v1.InstanceService/GetInstanceProfile": {},
 	"/memos.api.v1.InstanceService/GetInstanceSetting": {},
 
-	// User Service - public user profiles and stats
-	"/memos.api.v1.UserService/CreateUser":       {}, // Allow first user registration
-	"/memos.api.v1.UserService/GetUser":          {},
-	"/memos.api.v1.UserService/GetUserAvatar":    {},
-	"/memos.api.v1.UserService/GetUserStats":     {},
-	"/memos.api.v1.UserService/ListAllUserStats": {},
-	"/memos.api.v1.UserService/SearchUsers":      {},
+	// User Service - allow first user registration
+	"/memos.api.v1.UserService/CreateUser": {}, // Allow first user registration
 
 	// Identity Provider Service - SSO buttons on login page
 	"/memos.api.v1.IdentityProviderService/ListIdentityProviders": {},
 
-	// Memo Service - public memos (visibility filtering done in service layer)
-	"/memos.api.v1.MemoService/GetMemo":          {},
-	"/memos.api.v1.MemoService/ListMemos":        {},
-	"/memos.api.v1.MemoService/ListMemoComments": {},
+	// NOTE: Memo APIs now require authentication
+	// Removed: GetMemo, ListMemos, ListMemoComments
+	// NOTE: User profile APIs now require authentication
+	// Removed: GetUser, GetUserAvatar, GetUserStats, ListAllUserStats, SearchUsers
 }
 
 // GuestBlockedWriteMethods defines mutation RPCs that guest users are not allowed to call.
