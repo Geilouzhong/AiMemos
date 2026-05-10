@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"connectrpc.com/connect"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -69,7 +70,25 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 			// Enforce authentication for non-public methods
 			// If rpcMethod cannot be determined, continue and rely on service-layer authorization.
 			if result == nil && ok && !IsPublicMethod(rpcMethod) {
-				http.Error(w, `{"code": 16, "message": "authentication required"}`, http.StatusUnauthorized)
+				// Check if this is a browser request (not API call)
+				// Browser requests typically expect HTML, API calls expect JSON
+				acceptHeader := r.Header.Get("Accept")
+				userAgent := r.Header.Get("User-Agent")
+				isBrowserRequest := (acceptHeader != "" &&
+					(containsString(acceptHeader, "text/html") || containsString(acceptHeader, "*/*"))) &&
+					!containsString(userAgent, "compatible") && // Not "bot" or "spider"
+					r.URL.Query().Get("f") != "json" // Not explicit JSON format request
+
+				if isBrowserRequest {
+					// Redirect browser requests to login page
+					// Preserve the intended destination for redirect after login
+					returnURL := r.URL.String()
+					loginURL := "/auth/sign-in?redirect=" + returnURL
+					http.Redirect(w, r, loginURL, http.StatusFound)
+				} else {
+					// API requests return JSON error
+					http.Error(w, `{"code": 16, "message": "authentication required"}`, http.StatusUnauthorized)
+				}
 				return
 			}
 
@@ -175,4 +194,9 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 	connectGroup.Any("/memos.api.v1.*", echo.WrapHandler(connectMux))
 
 	return nil
+}
+
+// containsString checks if a string contains a substring (case-insensitive).
+func containsString(s, substr string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
