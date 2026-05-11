@@ -32,6 +32,10 @@ type Profile struct {
 	Version string
 	// InstanceURL is the url of your memos instance.
 	InstanceURL string
+	// EnableMCP enables MCP server
+	EnableMCP bool
+	// MCPPath is the endpoint path for MCP server
+	MCPPath string
 }
 
 func checkDataDir(dataDir string) (string, error) {

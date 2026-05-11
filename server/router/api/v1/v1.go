@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -192,6 +193,14 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 	})
 	connectGroup := echoServer.Group("", corsHandler)
 	connectGroup.Any("/memos.api.v1.*", echo.WrapHandler(connectMux))
+
+	// Register MCP endpoint if enabled
+	if s.Profile.EnableMCP {
+		mcpHandler := NewMCPHandler(s, s.Profile)
+		if err := mcpHandler.RegisterMCPEndpoint(echoServer); err != nil {
+			return fmt.Errorf("failed to register MCP endpoint: %w", err)
+		}
+	}
 
 	return nil
 }
