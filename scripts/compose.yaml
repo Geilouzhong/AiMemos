@@ -2,6 +2,9 @@ services:
   memos:
     image: neosmemo/memos:stable
     container_name: memos
+    environment:
+      MEMOS_ENABLE_MCP: "true"
+      MEMOS_MCP_PATH: /mcp
     volumes:
       - ~/.memos/:/var/opt/memos
     ports:
