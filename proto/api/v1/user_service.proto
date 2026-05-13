@@ -204,9 +204,9 @@ message User {
   // Optional. Whether this user is a guest account.
   bool is_guest = 12 [(google.api.field_behavior) = OPTIONAL];
 
-	// Optional. Whether activity tracking is enabled for this user.
-	// When true, the system logs this user's memo viewing activity to logs/memo_activity.log.
-	bool enable_activity_tracking = 13 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. Whether activity tracking is enabled for this user.
+  // When true, the system logs this user's memo viewing activity to logs/memo_activity.log.
+  bool enable_activity_tracking = 13 [(google.api.field_behavior) = OPTIONAL];
 
   // User role enumeration.
   enum Role {

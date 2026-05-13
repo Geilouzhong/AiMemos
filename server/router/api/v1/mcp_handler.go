@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v4"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/server/auth"
 )
@@ -36,7 +36,7 @@ func (h *MCPHandler) RegisterMCPEndpoint(echoServer *echo.Echo) error {
 }
 
 // HandleSSEConnection handles SSE connections from AI agents.
-func (h *MCPHandler) HandleSSEConnection(c *echo.Context) error {
+func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 	// 1. 设置 SSE headers
 	c.Response().Header().Set("Content-Type", "text/event-stream")
 	c.Response().Header().Set("Cache-Control", "no-cache")
@@ -81,7 +81,7 @@ func (h *MCPHandler) HandleSSEConnection(c *echo.Context) error {
 	}
 
 	// 4. 保持连接，处理消息
-	flusher, ok := c.Response().(http.Flusher)
+	flusher, ok := c.Response().Writer.(http.Flusher)
 	if !ok {
 		return fmt.Errorf("streaming not supported")
 	}
@@ -122,7 +122,7 @@ func (h *MCPHandler) HandleSSEConnection(c *echo.Context) error {
 }
 
 // sendSSEEvent sends an SSE event to the client.
-func (h *MCPHandler) sendSSEEvent(c *echo.Context, event string, data interface{}) error {
+func (h *MCPHandler) sendSSEEvent(c echo.Context, event string, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -136,7 +136,7 @@ func (h *MCPHandler) sendSSEEvent(c *echo.Context, event string, data interface{
 }
 
 // sendSSEError sends a localized error event to the client.
-func (h *MCPHandler) sendSSEError(c *echo.Context, code string, message string) error {
+func (h *MCPHandler) sendSSEError(c echo.Context, code string, message string) error {
 	// 如果提供了自定义消息，使用自定义消息
 	// 否则使用本地化消息
 	finalMessage := message
@@ -151,7 +151,7 @@ func (h *MCPHandler) sendSSEError(c *echo.Context, code string, message string) 
 }
 
 // heartbeatLoop sends periodic ping events to keep the connection alive.
-func (h *MCPHandler) heartbeatLoop(ctx context.Context, c *echo.Context, flusher http.Flusher) {
+func (h *MCPHandler) heartbeatLoop(ctx context.Context, c echo.Context, flusher http.Flusher) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
@@ -185,7 +185,7 @@ var toolHandlerMap = map[string]func(*MCPHandler, context.Context, int32, map[st
 }
 
 // handleMCPRequest processes an incoming MCP request.
-func (h *MCPHandler) handleMCPRequest(ctx context.Context, c *echo.Context, req map[string]interface{}, userID int32) error {
+func (h *MCPHandler) handleMCPRequest(ctx context.Context, c echo.Context, req map[string]interface{}, userID int32) error {
 	method, ok := req["method"].(string)
 	if !ok {
 		return h.sendSSEError(c, "INVALID_REQUEST", "")
@@ -199,7 +199,7 @@ func (h *MCPHandler) handleMCPRequest(ctx context.Context, c *echo.Context, req 
 }
 
 // handleToolCall processes a tool/call request.
-func (h *MCPHandler) handleToolCall(ctx context.Context, c *echo.Context, req map[string]interface{}, userID int32) error {
+func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map[string]interface{}, userID int32) error {
 	params, ok := req["params"].(map[string]interface{})
 	if !ok {
 		return h.sendSSEError(c, "INVALID_REQUEST", "")
@@ -237,14 +237,14 @@ func (h *MCPHandler) handleToolCall(ctx context.Context, c *echo.Context, req ma
 }
 
 // sendServiceError converts service errors to MCP errors.
-func (h *MCPHandler) sendServiceError(c *echo.Context, err error) error {
+func (h *MCPHandler) sendServiceError(c echo.Context, err error) error {
 	// 简化版本：直接返回错误
 	// 下一任务会实现完整的 gRPC 错误转换
 	return h.sendSSEError(c, "INTERNAL_ERROR", err.Error())
 }
 
 // HandleHTTPToolCall handles standard MCP JSON-RPC over HTTP requests
-func (h *MCPHandler) HandleHTTPToolCall(c *echo.Context) error {
+func (h *MCPHandler) HandleHTTPToolCall(c echo.Context) error {
 	// 1. 认证
 	ctx := c.Request().Context()
 	authHeader := c.Request().Header.Get("Authorization")

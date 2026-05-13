@@ -17,16 +17,8 @@ func TestPublicMethodsArePublic(t *testing.T) {
 		"/memos.api.v1.InstanceService/GetInstanceSetting",
 		// User Service
 		"/memos.api.v1.UserService/CreateUser",
-		"/memos.api.v1.UserService/GetUser",
-		"/memos.api.v1.UserService/GetUserAvatar",
-		"/memos.api.v1.UserService/GetUserStats",
-		"/memos.api.v1.UserService/ListAllUserStats",
-		"/memos.api.v1.UserService/SearchUsers",
 		// Identity Provider Service
 		"/memos.api.v1.IdentityProviderService/ListIdentityProviders",
-		// Memo Service
-		"/memos.api.v1.MemoService/GetMemo",
-		"/memos.api.v1.MemoService/ListMemos",
 	}
 
 	for _, method := range publicMethods {
@@ -46,8 +38,16 @@ func TestProtectedMethodsRequireAuth(t *testing.T) {
 		"/memos.api.v1.InstanceService/UpdateInstanceSetting",
 		// User Service - modification operations
 		"/memos.api.v1.UserService/ListUsers",
+		"/memos.api.v1.UserService/GetUser",
+		"/memos.api.v1.UserService/GetUserAvatar",
+		"/memos.api.v1.UserService/GetUserStats",
+		"/memos.api.v1.UserService/ListAllUserStats",
+		"/memos.api.v1.UserService/SearchUsers",
 		"/memos.api.v1.UserService/UpdateUser",
 		"/memos.api.v1.UserService/DeleteUser",
+		// Memo Service - read and write operations now require auth
+		"/memos.api.v1.MemoService/GetMemo",
+		"/memos.api.v1.MemoService/ListMemos",
 		// Memo Service - write operations
 		"/memos.api.v1.MemoService/CreateMemo",
 		"/memos.api.v1.MemoService/UpdateMemo",

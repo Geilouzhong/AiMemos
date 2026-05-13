@@ -4,9 +4,10 @@ import (
 	"context"
 	"embed"
 	"io/fs"
+	"net/http"
 
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/internal/util"
@@ -29,7 +30,7 @@ func NewFrontendService(profile *profile.Profile, store *store.Store) *FrontendS
 }
 
 func (*FrontendService) Serve(_ context.Context, e *echo.Echo) {
-	skipper := func(c *echo.Context) bool {
+	skipper := func(c echo.Context) bool {
 		// For static middleware, we need to check the actual request path
 		requestPath := c.Request().URL.Path
 		// Skip API routes and MCP endpoint.
@@ -56,10 +57,10 @@ func (*FrontendService) Serve(_ context.Context, e *echo.Echo) {
 	}))
 }
 
-func getFileSystem(path string) fs.FS {
+func getFileSystem(path string) http.FileSystem {
 	sub, err := fs.Sub(embeddedFiles, path)
 	if err != nil {
 		panic(err)
 	}
-	return sub
+	return http.FS(sub)
 }
