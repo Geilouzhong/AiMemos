@@ -4,10 +4,9 @@ import (
 	"context"
 	"embed"
 	"io/fs"
-	"net/http"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/internal/util"
@@ -30,24 +29,21 @@ func NewFrontendService(profile *profile.Profile, store *store.Store) *FrontendS
 }
 
 func (*FrontendService) Serve(_ context.Context, e *echo.Echo) {
-	skipper := func(c echo.Context) bool {
-		// Skip API routes.
-		if util.HasPrefixes(c.Path(), "/api", "/memos.api.v1") {
+	skipper := func(c *echo.Context) bool {
+		// For static middleware, we need to check the actual request path
+		requestPath := c.Request().URL.Path
+		// Skip API routes and MCP endpoint.
+		if util.HasPrefixes(requestPath, "/api", "/memos.api.v1", "/mcp") {
 			return true
 		}
-		// For index.html and root path, set no-cache headers to prevent browser caching
-		// This prevents sensitive data from being accessible via browser back button after logout
-		if c.Path() == "/" || c.Path() == "/index.html" {
+		// For index.html and root path, set no-cache headers
+		if requestPath == "/" || requestPath == "/index.html" {
 			c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, no-store, must-revalidate")
 			c.Response().Header().Set("Pragma", "no-cache")
 			c.Response().Header().Set("Expires", "0")
 			return false
 		}
 		// Set Cache-Control header for static assets.
-		// Since Vite generates content-hashed filenames (e.g., index-BtVjejZf.js),
-		// we can cache aggressively but use immutable to prevent revalidation checks.
-		// For frequently redeployed instances, use shorter max-age (1 hour) to avoid
-		// serving stale assets after redeployment.
 		c.Response().Header().Set(echo.HeaderCacheControl, "public, max-age=3600, immutable") // 1 hour
 		return false
 	}
@@ -60,10 +56,10 @@ func (*FrontendService) Serve(_ context.Context, e *echo.Echo) {
 	}))
 }
 
-func getFileSystem(path string) http.FileSystem {
-	fs, err := fs.Sub(embeddedFiles, path)
+func getFileSystem(path string) fs.FS {
+	sub, err := fs.Sub(embeddedFiles, path)
 	if err != nil {
 		panic(err)
 	}
-	return http.FS(fs)
+	return sub
 }
