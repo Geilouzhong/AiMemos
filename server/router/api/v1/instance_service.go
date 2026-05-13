@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -269,17 +268,20 @@ func convertInstanceMemoRelatedSettingToStore(setting *v1pb.InstanceSetting_Memo
 	}
 }
 
+
 func (s *APIV1Service) GetInstanceAdmin(ctx context.Context) (*v1pb.User, error) {
-	adminUserType := store.RoleAdmin
-	user, err := s.Store.GetUser(ctx, &store.FindUser{
-		Role: &adminUserType,
-	})
+	// Try to find admin user by listing all users and finding the first HOST or ADMIN
+	userList, err := s.Store.ListUsers(ctx, &store.FindUser{})
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to find admin")
-	}
-	if user == nil {
-		return nil, nil
+		return nil, err
 	}
 
-	return convertUserFromStore(user), nil
+	// Find first user with HOST or ADMIN role
+	for _, user := range userList {
+		if user.Role == store.RoleHost || user.Role == store.RoleAdmin {
+			return convertUserFromStore(user), nil
+		}
+	}
+
+	return nil, nil
 }
