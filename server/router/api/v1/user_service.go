@@ -953,6 +953,8 @@ func convertUserFromStore(user *store.User) *v1pb.User {
 
 func convertUserRoleFromStore(role store.Role) v1pb.User_Role {
 	switch role {
+	case store.RoleHost:
+		return v1pb.User_HOST
 	case store.RoleAdmin:
 		return v1pb.User_ADMIN
 	case store.RoleUser:
@@ -964,6 +966,8 @@ func convertUserRoleFromStore(role store.Role) v1pb.User_Role {
 
 func convertUserRoleToStore(role v1pb.User_Role) store.Role {
 	switch role {
+	case v1pb.User_HOST:
+		return store.RoleHost
 	case v1pb.User_ADMIN:
 		return store.RoleAdmin
 	default:

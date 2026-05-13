@@ -211,6 +211,8 @@ message User {
   // User role enumeration.
   enum Role {
     ROLE_UNSPECIFIED = 0;
+    // Host role is the owner of the instance.
+    HOST = 1;
     // Admin role with system access.
     ADMIN = 2;
     // User role with limited access.

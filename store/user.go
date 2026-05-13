@@ -8,6 +8,8 @@ import (
 type Role string
 
 const (
+	// RoleHost is the HOST role.
+	RoleHost Role = "HOST"
 	// RoleAdmin is the ADMIN role.
 	RoleAdmin Role = "ADMIN"
 	// RoleUser is the USER role.
@@ -16,6 +18,8 @@ const (
 
 func (e Role) String() string {
 	switch e {
+	case RoleHost:
+		return "HOST"
 	case RoleAdmin:
 		return "ADMIN"
 	default:

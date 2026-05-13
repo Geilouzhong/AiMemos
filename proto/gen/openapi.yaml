@@ -2873,6 +2873,7 @@ components:
                 role:
                     enum:
                         - ROLE_UNSPECIFIED
+                        - HOST
                         - ADMIN
                         - USER
                     type: string
