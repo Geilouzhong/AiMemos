@@ -166,7 +166,7 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 			DisplayName:            request.User.DisplayName,
 			Role:                   convertUserRoleFromStore(roleToAssign),
 			IsGuest:                isGuestToAssign,
-			EnableActivityTracking:  request.User.EnableActivityTracking,
+			EnableActivityTracking: request.User.EnableActivityTracking,
 		}, nil
 	}
 
@@ -176,12 +176,12 @@ func (s *APIV1Service) CreateUser(ctx context.Context, request *v1pb.CreateUserR
 	}
 
 	user, err := s.Store.CreateUser(ctx, &store.User{
-		Username:     request.User.Username,
-		Role:         roleToAssign,
-		Email:        request.User.Email,
-		Nickname:     request.User.DisplayName,
-		PasswordHash: string(passwordHash),
-		IsGuest:      isGuestToAssign,
+		Username:               request.User.Username,
+		Role:                   roleToAssign,
+		Email:                  request.User.Email,
+		Nickname:               request.User.DisplayName,
+		PasswordHash:           string(passwordHash),
+		IsGuest:                isGuestToAssign,
 		EnableActivityTracking: request.User.EnableActivityTracking,
 	})
 	if err != nil {
