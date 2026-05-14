@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	apiv1 "github.com/usememos/memos/proto/gen/api/v1"
-	storepb "github.com/usememos/memos/proto/gen/store"
+	apiv1 "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
 )
 
 func TestCreateUserRegistration(t *testing.T) {

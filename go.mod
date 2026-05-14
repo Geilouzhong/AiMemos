@@ -1,4 +1,4 @@
-module github.com/usememos/memos
+module github.com/Geilouzhong/AiMemos
 
 go 1.25
 

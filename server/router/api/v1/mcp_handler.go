@@ -12,8 +12,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/server/auth"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/server/auth"
 )
 
 // MCPHandler handles MCP (Model Context Protocol) requests.

@@ -18,12 +18,12 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/semaphore"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/internal/util"
-	"github.com/usememos/memos/plugin/storage/s3"
-	storepb "github.com/usememos/memos/proto/gen/store"
-	"github.com/usememos/memos/server/auth"
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/internal/util"
+	"github.com/Geilouzhong/AiMemos/plugin/storage/s3"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
+	"github.com/Geilouzhong/AiMemos/server/auth"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 // Constants for file serving configuration.

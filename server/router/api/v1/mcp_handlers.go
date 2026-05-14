@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	v1pb "github.com/usememos/memos/proto/gen/api/v1"
+	v1pb "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
 )
 
 // handleCreateMemo implements the create_memo tool.

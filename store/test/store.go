@@ -12,10 +12,10 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/internal/version"
-	"github.com/usememos/memos/store"
-	"github.com/usememos/memos/store/db"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/internal/version"
+	"github.com/Geilouzhong/AiMemos/store"
+	"github.com/Geilouzhong/AiMemos/store/db"
 )
 
 // NewTestingStore creates a new testing store with a fresh database.

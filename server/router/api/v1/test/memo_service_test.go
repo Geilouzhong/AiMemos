@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	apiv1 "github.com/usememos/memos/proto/gen/api/v1"
+	apiv1 "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
 )
 
 func TestListMemos(t *testing.T) {
@@ -254,7 +254,7 @@ func TestListMemos(t *testing.T) {
 }
 
 // TestCreateMemoWithCustomTimestamps tests that custom timestamps can be set when creating memos and comments.
-// This addresses issue #5483: https://github.com/usememos/memos/issues/5483
+// This addresses issue #5483: https://github.com/Geilouzhong/AiMemos/issues/5483
 func TestCreateMemoWithCustomTimestamps(t *testing.T) {
 	ctx := context.Background()
 

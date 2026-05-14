@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	v1pb "github.com/usememos/memos/proto/gen/api/v1"
+	v1pb "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

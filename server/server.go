@@ -14,14 +14,14 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
 
-	"github.com/usememos/memos/internal/profile"
-	storepb "github.com/usememos/memos/proto/gen/store"
-	apiv1 "github.com/usememos/memos/server/router/api/v1"
-	"github.com/usememos/memos/server/router/fileserver"
-	"github.com/usememos/memos/server/router/frontend"
-	"github.com/usememos/memos/server/router/rss"
-	"github.com/usememos/memos/server/runner/s3presign"
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
+	apiv1 "github.com/Geilouzhong/AiMemos/server/router/api/v1"
+	"github.com/Geilouzhong/AiMemos/server/router/fileserver"
+	"github.com/Geilouzhong/AiMemos/server/router/frontend"
+	"github.com/Geilouzhong/AiMemos/server/router/rss"
+	"github.com/Geilouzhong/AiMemos/server/runner/s3presign"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 type Server struct {

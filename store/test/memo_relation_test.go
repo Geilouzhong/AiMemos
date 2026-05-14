@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 func TestMemoRelationStore(t *testing.T) {

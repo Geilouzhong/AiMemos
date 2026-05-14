@@ -5,7 +5,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/util"
 
-	mparser "github.com/usememos/memos/plugin/markdown/parser"
+	mparser "github.com/Geilouzhong/AiMemos/plugin/markdown/parser"
 )
 
 type tagExtension struct{}

@@ -8,8 +8,8 @@ import (
 	"github.com/lithammer/shortuuid/v4"
 	"github.com/stretchr/testify/require"
 
-	storepb "github.com/usememos/memos/proto/gen/store"
-	"github.com/usememos/memos/store"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 // =============================================================================

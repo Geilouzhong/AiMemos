@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	storepb "github.com/usememos/memos/proto/gen/store"
-	"github.com/usememos/memos/store"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 func TestUserSettingStore(t *testing.T) {

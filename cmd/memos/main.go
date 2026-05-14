@@ -13,11 +13,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/internal/version"
-	"github.com/usememos/memos/server"
-	"github.com/usememos/memos/store"
-	"github.com/usememos/memos/store/db"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/internal/version"
+	"github.com/Geilouzhong/AiMemos/server"
+	"github.com/Geilouzhong/AiMemos/store"
+	"github.com/Geilouzhong/AiMemos/store/db"
 )
 
 var (
@@ -176,7 +176,7 @@ func printGreetings(profile *profile.Profile) {
 
 	fmt.Println()
 	fmt.Printf("Documentation: %s\n", "https://usememos.com")
-	fmt.Printf("Source code: %s\n", "https://github.com/usememos/memos")
+	fmt.Printf("Source code: %s\n", "https://github.com/Geilouzhong/AiMemos")
 	fmt.Println("\nHappy note-taking!")
 }
 

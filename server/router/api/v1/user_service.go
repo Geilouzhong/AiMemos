@@ -21,12 +21,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/usememos/memos/internal/base"
-	"github.com/usememos/memos/internal/util"
-	v1pb "github.com/usememos/memos/proto/gen/api/v1"
-	storepb "github.com/usememos/memos/proto/gen/store"
-	"github.com/usememos/memos/server/auth"
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/internal/base"
+	"github.com/Geilouzhong/AiMemos/internal/util"
+	v1pb "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
+	"github.com/Geilouzhong/AiMemos/server/auth"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 func (s *APIV1Service) ListUsers(ctx context.Context, request *v1pb.ListUsersRequest) (*v1pb.ListUsersResponse, error) {

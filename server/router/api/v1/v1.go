@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/semaphore"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/plugin/markdown"
-	v1pb "github.com/usememos/memos/proto/gen/api/v1"
-	"github.com/usememos/memos/server/auth"
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/plugin/markdown"
+	v1pb "github.com/Geilouzhong/AiMemos/proto/gen/api/v1"
+	"github.com/Geilouzhong/AiMemos/server/auth"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 type APIV1Service struct {

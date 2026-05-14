@@ -8,9 +8,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/usememos/memos/internal/base"
-	"github.com/usememos/memos/plugin/storage/s3"
-	storepb "github.com/usememos/memos/proto/gen/store"
+	"github.com/Geilouzhong/AiMemos/internal/base"
+	"github.com/Geilouzhong/AiMemos/plugin/storage/s3"
+	storepb "github.com/Geilouzhong/AiMemos/proto/gen/store"
 )
 
 type Attachment struct {

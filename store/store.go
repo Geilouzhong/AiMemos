@@ -3,8 +3,8 @@ package store
 import (
 	"time"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/store/cache"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/store/cache"
 )
 
 // Store provides database access to all raw objects.

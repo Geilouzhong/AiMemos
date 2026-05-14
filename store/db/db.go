@@ -3,11 +3,11 @@ package db
 import (
 	"github.com/pkg/errors"
 
-	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/store"
-	"github.com/usememos/memos/store/db/mysql"
-	"github.com/usememos/memos/store/db/postgres"
-	"github.com/usememos/memos/store/db/sqlite"
+	"github.com/Geilouzhong/AiMemos/internal/profile"
+	"github.com/Geilouzhong/AiMemos/store"
+	"github.com/Geilouzhong/AiMemos/store/db/mysql"
+	"github.com/Geilouzhong/AiMemos/store/db/postgres"
+	"github.com/Geilouzhong/AiMemos/store/db/sqlite"
 )
 
 // NewDBDriver creates new db driver based on profile.

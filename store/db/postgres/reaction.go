@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/usememos/memos/store"
+	"github.com/Geilouzhong/AiMemos/store"
 )
 
 func (d *DB) UpsertReaction(ctx context.Context, upsert *store.Reaction) (*store.Reaction, error) {

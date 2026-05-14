@@ -23,7 +23,7 @@ This plugin provides a simple, reliable email sending interface following indust
 ### 1. Configure SMTP Settings
 
 ```go
-import "github.com/usememos/memos/plugin/email"
+import "github.com/Geilouzhong/AiMemos/plugin/email"
 
 config := &email.Config{
     SMTPHost:     "smtp.gmail.com",
@@ -209,7 +209,7 @@ package main
 
 import (
     "log"
-    "github.com/usememos/memos/plugin/email"
+    "github.com/Geilouzhong/AiMemos/plugin/email"
 )
 
 func main() {
@@ -492,7 +492,7 @@ This plugin follows the Memos contribution guidelines. Please ensure:
 
 For issues and questions:
 
-- Memos GitHub Issues: https://github.com/usememos/memos/issues
+- Memos GitHub Issues: https://github.com/Geilouzhong/AiMemos/issues
 - Memos Documentation: https://usememos.com/docs
 
 ## Roadmap
