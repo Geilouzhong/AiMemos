@@ -7,8 +7,9 @@ import (
 	"time"
 	"unicode"
 
-	v1pb "github.com/usememos/memos/proto/gen/api/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	v1pb "github.com/usememos/memos/proto/gen/api/v1"
 )
 
 // tagRegex matches hashtags in content (#work, #AI, #工作).

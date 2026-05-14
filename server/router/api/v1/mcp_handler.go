@@ -11,6 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/server/auth"
 )
