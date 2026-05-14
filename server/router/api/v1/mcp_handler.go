@@ -78,7 +78,7 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 
 	// 3. 发送初始化事件（工具列表）
 	if err := sendSSEEvent(c, "tools/list", GetToolsList()); err != nil {
-		return fmt.Errorf("failed to send tools list: %w", err)
+		return errors.Wrap(err, "failed to send tools list")
 	}
 
 	// 4. 保持连接，处理消息
@@ -92,7 +92,7 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	go h.heartbeatLoop(ctx, c, flusher)
+	go heartbeatLoop(ctx, c, flusher)
 
 	// 6. 监听客户端消息
 	scanner := bufio.NewScanner(c.Request().Body)
@@ -126,7 +126,7 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 func sendSSEEvent(c echo.Context, event string, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("failed to marshal data: %w", err)
+		return errors.Wrap(err, "failed to marshal data")
 	}
 
 	w := c.Response()
@@ -152,7 +152,7 @@ func sendSSEError(c echo.Context, code string, message string) error {
 }
 
 // heartbeatLoop sends periodic ping events to keep the connection alive.
-func (h *MCPHandler) heartbeatLoop(ctx context.Context, c echo.Context, flusher http.Flusher) {
+func heartbeatLoop(ctx context.Context, c echo.Context, flusher http.Flusher) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
@@ -229,7 +229,7 @@ func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map
 
 	result, err := handler(h, ctx, userID, arguments)
 	if err != nil {
-		return h.sendServiceError(c, err)
+		return sendServiceError(c, err)
 	}
 
 	return sendSSEEvent(c, "tools/call/response", map[string]interface{}{
@@ -238,13 +238,13 @@ func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map
 }
 
 // sendServiceError converts service errors to MCP errors.
-func (_ *MCPHandler) sendServiceError(c echo.Context, err error) error {
+func sendServiceError(c echo.Context, err error) error {
 	// 简化版本：直接返回错误
 	// 下一任务会实现完整的 gRPC 错误转换
 	return sendSSEError(c, "INTERNAL_ERROR", err.Error())
 }
 
-// HandleHTTPToolCall handles standard MCP JSON-RPC over HTTP requests
+// HandleHTTPToolCall handles standard MCP JSON-RPC over HTTP requests.
 func (h *MCPHandler) HandleHTTPToolCall(c echo.Context) error {
 	// 1. 认证
 	ctx := c.Request().Context()

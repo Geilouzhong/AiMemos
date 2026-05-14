@@ -878,12 +878,11 @@ func (*APIV1Service) parseMemoOrderBy(orderBy string, memoFind *store.FindMemo) 
 	return nil
 }
 
-
-// httpRequestContextKey 是 context 的键类型，用于存储 HTTP Request
+// httpRequestContextKey 是 context 的键类型，用于存储 HTTP Request。
 type httpRequestContextKey struct{}
 
-// getHTTPRequestFromContext 从 context 中获取 HTTP Request
-// 这个函数需要在 connect_handler.go 中将 HTTP Request 存入 context
+// getHTTPRequestFromContext 从 context 中获取 HTTP Request。
+// 这个函数需要在 connect_handler.go 中将 HTTP Request 存入 context。
 func getHTTPRequestFromContext(ctx context.Context) *http.Request {
 	req, ok := ctx.Value(httpRequestContextKey{}).(*http.Request)
 	if !ok {

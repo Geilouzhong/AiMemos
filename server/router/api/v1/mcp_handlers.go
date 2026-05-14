@@ -80,7 +80,7 @@ func (h *MCPHandler) handleGetMemo(ctx context.Context, _ int32, args map[string
 
 	memo, err := h.GetMemo(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("memo not found: %s", id)
+		return nil, errors.Errorf("memo not found: %s", id)
 	}
 
 	baseURL := h.profile.InstanceURL
@@ -159,7 +159,7 @@ func (h *MCPHandler) handleListMemos(ctx context.Context, _ int32, args map[stri
 }
 
 // handleUpdateMemo implements the update_memo tool.
-func (h *MCPHandler) handleUpdateMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
+func (h *MCPHandler) handleUpdateMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
 		return nil, errors.New("id is required")
@@ -209,7 +209,7 @@ func (h *MCPHandler) handleUpdateMemo(ctx context.Context, userID int32, args ma
 }
 
 // handleDeleteMemo implements the delete_memo tool.
-func (h *MCPHandler) handleDeleteMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
+func (h *MCPHandler) handleDeleteMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
 		return nil, errors.New("id is required")

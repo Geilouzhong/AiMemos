@@ -37,14 +37,14 @@ func (s *ConnectServiceHandler) RegisterConnectHandlers(mux *http.ServeMux, opts
 		path    string
 		handler http.Handler
 	}{
-		s.wrap(apiv1connect.NewInstanceServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewAuthServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewUserServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewMemoServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewAttachmentServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewShortcutServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewActivityServiceHandler(s, opts...)),
-		s.wrap(apiv1connect.NewIdentityProviderServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewInstanceServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewAuthServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewUserServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewMemoServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewAttachmentServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewShortcutServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewActivityServiceHandler(s, opts...)),
+		wrapConnectHandler(apiv1connect.NewIdentityProviderServiceHandler(s, opts...)),
 	}
 
 	for _, h := range handlers {
@@ -52,9 +52,9 @@ func (s *ConnectServiceHandler) RegisterConnectHandlers(mux *http.ServeMux, opts
 	}
 }
 
-// wrap converts (path, handler) return value to a struct for cleaner iteration.
-// 同时创建一个中间件，将 HTTP Request 存入 context，供后续的 activity logging 使用
-func (_ *ConnectServiceHandler) wrap(path string, handler http.Handler) struct {
+// wrapConnectHandler converts (path, handler) return value to a struct for cleaner iteration.
+// 同时创建一个中间件，将 HTTP Request 存入 context，供后续的 activity logging 使用。
+func wrapConnectHandler(path string, handler http.Handler) struct {
 	path    string
 	handler http.Handler
 } {
