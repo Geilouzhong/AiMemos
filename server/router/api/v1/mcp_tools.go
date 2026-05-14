@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 )
 
 // MCPTool represents an MCP tool with its schema.
@@ -130,7 +130,7 @@ func ValidateToolCall(name string, args map[string]interface{}) error {
 	}
 
 	if tool == nil {
-		return fmt.Errorf("unknown tool: %s", name)
+		return errors.Errorf("unknown tool: %s", name)
 	}
 
 	// 验证必填参数
@@ -141,7 +141,7 @@ func ValidateToolCall(name string, args map[string]interface{}) error {
 
 	for _, field := range required {
 		if _, exists := args[field]; !exists {
-			return fmt.Errorf("missing required field: %s", field)
+			return errors.Errorf("missing required field: %s", field)
 		}
 	}
 

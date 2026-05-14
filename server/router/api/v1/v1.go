@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/semaphore"
 
 	"github.com/usememos/memos/internal/profile"
@@ -198,7 +198,7 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 	if s.Profile.EnableMCP {
 		mcpHandler := NewMCPHandler(s, s.Profile)
 		if err := mcpHandler.RegisterMCPEndpoint(echoServer); err != nil {
-			return fmt.Errorf("failed to register MCP endpoint: %w", err)
+			return errors.Wrap(err, "failed to register MCP endpoint")
 		}
 	}
 
