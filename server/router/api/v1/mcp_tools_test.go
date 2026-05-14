@@ -98,7 +98,8 @@ func TestGetToolsList(t *testing.T) {
 		result := GetToolsList()
 
 		assert.Contains(t, result, "tools")
-		tools := result["tools"].([]map[string]interface{})
+		tools, ok := result["tools"].([]map[string]interface{})
+		require.True(t, ok)
 		assert.Len(t, tools, 5)
 
 		// 验证每个工具都有必需的字段
@@ -183,16 +184,19 @@ func TestMCPToolSchema(t *testing.T) {
 		assert.NotNil(t, tool)
 		assert.Equal(t, "object", tool.InputSchema["type"])
 
-		props := tool.InputSchema["properties"].(map[string]interface{})
+		props, ok := tool.InputSchema["properties"].(map[string]interface{})
+		require.True(t, ok)
 		assert.Contains(t, props, "content")
 		assert.Contains(t, props, "visibility")
 
-		content := props["content"].(map[string]interface{})
+		content, ok := props["content"].(map[string]interface{})
+		require.True(t, ok)
 		assert.Equal(t, "string", content["type"])
 		assert.Equal(t, 1, content["minLength"])
 		assert.Equal(t, 10000, content["maxLength"])
 
-		visibility := props["visibility"].(map[string]interface{})
+		visibility, ok := props["visibility"].(map[string]interface{})
+		require.True(t, ok)
 		assert.Equal(t, "string", visibility["type"])
 		assert.Contains(t, visibility["enum"], "PRIVATE")
 		assert.Contains(t, visibility["enum"], "PROTECTED")

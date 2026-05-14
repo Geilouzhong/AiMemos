@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	v1pb "github.com/usememos/memos/proto/gen/api/v1"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 // handleCreateMemo implements the create_memo tool.
-func (h *MCPHandler) handleCreateMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
+func (h *MCPHandler) handleCreateMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	content, ok := args["content"].(string)
 	if !ok || strings.TrimSpace(content) == "" {
-		return nil, fmt.Errorf("content is required")
+		return nil, errors.New("content is required")
 	}
 
 	visibility := v1pb.Visibility_PRIVATE
@@ -67,10 +68,10 @@ func (h *MCPHandler) handleCreateMemo(ctx context.Context, userID int32, args ma
 }
 
 // handleGetMemo implements the get_memo tool.
-func (h *MCPHandler) handleGetMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
+func (h *MCPHandler) handleGetMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
-		return nil, fmt.Errorf("id is required")
+		return nil, errors.New("id is required")
 	}
 
 	req := &v1pb.GetMemoRequest{
@@ -106,7 +107,7 @@ func (h *MCPHandler) handleGetMemo(ctx context.Context, userID int32, args map[s
 }
 
 // handleListMemos implements the list_memos tool.
-func (h *MCPHandler) handleListMemos(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
+func (h *MCPHandler) handleListMemos(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	filter := ""
 	if f, ok := args["filter"].(string); ok {
 		filter = f
@@ -161,12 +162,12 @@ func (h *MCPHandler) handleListMemos(ctx context.Context, userID int32, args map
 func (h *MCPHandler) handleUpdateMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
-		return nil, fmt.Errorf("id is required")
+		return nil, errors.New("id is required")
 	}
 
 	content, ok := args["content"].(string)
 	if !ok || strings.TrimSpace(content) == "" {
-		return nil, fmt.Errorf("content is required")
+		return nil, errors.New("content is required")
 	}
 
 	req := &v1pb.UpdateMemoRequest{
@@ -211,7 +212,7 @@ func (h *MCPHandler) handleUpdateMemo(ctx context.Context, userID int32, args ma
 func (h *MCPHandler) handleDeleteMemo(ctx context.Context, userID int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
-		return nil, fmt.Errorf("id is required")
+		return nil, errors.New("id is required")
 	}
 
 	req := &v1pb.DeleteMemoRequest{

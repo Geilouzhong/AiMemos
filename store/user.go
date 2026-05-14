@@ -50,31 +50,31 @@ type User struct {
 	UpdatedTs int64
 
 	// Domain specific fields
-	Username     string
-	Role         Role
-	Email        string
-	Nickname     string
-	PasswordHash string
-	AvatarURL    string
-	Description  string
-	IsGuest      bool
+	Username               string
+	Role                   Role
+	Email                  string
+	Nickname               string
+	PasswordHash           string
+	AvatarURL              string
+	Description            string
+	IsGuest                bool
 	EnableActivityTracking bool
 }
 
 type UpdateUser struct {
 	ID int32
 
-	UpdatedTs    *int64
-	RowStatus    *RowStatus
-	Username     *string
-	Role         *Role
-	Email        *string
-	Nickname     *string
-	Password     *string
-	AvatarURL    *string
-	PasswordHash *string
-	Description  *string
-	IsGuest      *bool
+	UpdatedTs              *int64
+	RowStatus              *RowStatus
+	Username               *string
+	Role                   *Role
+	Email                  *string
+	Nickname               *string
+	Password               *string
+	AvatarURL              *string
+	PasswordHash           *string
+	Description            *string
+	IsGuest                *bool
 	EnableActivityTracking *bool
 }
 

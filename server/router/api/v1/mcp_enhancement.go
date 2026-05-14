@@ -74,9 +74,7 @@ func TruncateContent(content string, maxLen int) string {
 
 	// 尝试在单词边界截断
 	truncated := string(runes[:maxLen])
-	lastSpace := strings.LastIndexFunc(truncated, func(r rune) bool {
-		return unicode.IsSpace(r)
-	})
+	lastSpace := strings.LastIndexFunc(truncated, unicode.IsSpace)
 
 	if lastSpace > 0 && lastSpace < maxLen-3 {
 		truncated = truncated[:lastSpace]

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/server/auth"
 )
@@ -55,7 +56,7 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 			authenticator := auth.NewAuthenticator(h.Store, h.Secret)
 			result := authenticator.Authenticate(ctx, authHeader)
 			if result == nil {
-				return h.sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
+				return sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
 			}
 			// 提取 userID（支持 JWT claims 和 PAT user）
 			if result.Claims != nil {
@@ -68,22 +69,22 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 				userID = result.User.ID
 				ctx = auth.SetUserInContext(ctx, result.User, result.AccessToken)
 			} else {
-				return h.sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
+				return sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
 			}
 		} else {
-			return h.sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
+			return sendSSEError(c, "AUTHENTICATION_REQUIRED", "")
 		}
 	}
 
 	// 3. 发送初始化事件（工具列表）
-	if err := h.sendSSEEvent(c, "tools/list", GetToolsList()); err != nil {
+	if err := sendSSEEvent(c, "tools/list", GetToolsList()); err != nil {
 		return fmt.Errorf("failed to send tools list: %w", err)
 	}
 
 	// 4. 保持连接，处理消息
 	flusher, ok := c.Response().Writer.(http.Flusher)
 	if !ok {
-		return fmt.Errorf("streaming not supported")
+		return errors.New("streaming not supported")
 	}
 	flusher.Flush()
 
@@ -106,13 +107,13 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 		// 解析 JSON-RPC 请求
 		var req map[string]interface{}
 		if err := json.Unmarshal([]byte(line), &req); err != nil {
-			h.sendSSEError(c, "INVALID_REQUEST", "")
+			sendSSEError(c, "INVALID_REQUEST", "")
 			continue
 		}
 
 		// 处理请求
 		if err := h.handleMCPRequest(ctx, c, req, userID); err != nil {
-			h.logError("handleMCPRequest", err)
+			logMCPError("handleMCPRequest", err)
 		}
 
 		flusher.Flush()
@@ -122,7 +123,7 @@ func (h *MCPHandler) HandleSSEConnection(c echo.Context) error {
 }
 
 // sendSSEEvent sends an SSE event to the client.
-func (h *MCPHandler) sendSSEEvent(c echo.Context, event string, data interface{}) error {
+func sendSSEEvent(c echo.Context, event string, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -136,7 +137,7 @@ func (h *MCPHandler) sendSSEEvent(c echo.Context, event string, data interface{}
 }
 
 // sendSSEError sends a localized error event to the client.
-func (h *MCPHandler) sendSSEError(c echo.Context, code string, message string) error {
+func sendSSEError(c echo.Context, code string, message string) error {
 	// 如果提供了自定义消息，使用自定义消息
 	// 否则使用本地化消息
 	finalMessage := message
@@ -144,7 +145,7 @@ func (h *MCPHandler) sendSSEError(c echo.Context, code string, message string) e
 		finalMessage = getLocalizedMessage(code, c.Request())
 	}
 
-	return h.sendSSEEvent(c, "error", map[string]interface{}{
+	return sendSSEEvent(c, "error", map[string]interface{}{
 		"code":    code,
 		"message": finalMessage,
 	})
@@ -160,7 +161,7 @@ func (h *MCPHandler) heartbeatLoop(ctx context.Context, c echo.Context, flusher 
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if err := h.sendSSEEvent(c, "ping", map[string]interface{}{
+			if err := sendSSEEvent(c, "ping", map[string]interface{}{
 				"timestamp": time.Now().Unix(),
 			}); err != nil {
 				return
@@ -171,7 +172,7 @@ func (h *MCPHandler) heartbeatLoop(ctx context.Context, c echo.Context, flusher 
 }
 
 // logError logs errors with context.
-func (h *MCPHandler) logError(context string, err error) {
+func logMCPError(context string, err error) {
 	fmt.Printf("[MCP Error] %s: %v\n", context, err)
 }
 
@@ -188,26 +189,26 @@ var toolHandlerMap = map[string]func(*MCPHandler, context.Context, int32, map[st
 func (h *MCPHandler) handleMCPRequest(ctx context.Context, c echo.Context, req map[string]interface{}, userID int32) error {
 	method, ok := req["method"].(string)
 	if !ok {
-		return h.sendSSEError(c, "INVALID_REQUEST", "")
+		return sendSSEError(c, "INVALID_REQUEST", "")
 	}
 
 	if method == "tools/call" {
 		return h.handleToolCall(ctx, c, req, userID)
 	}
 
-	return h.sendSSEError(c, "UNKNOWN_METHOD", fmt.Sprintf("unknown method: %s", method))
+	return sendSSEError(c, "UNKNOWN_METHOD", fmt.Sprintf("unknown method: %s", method))
 }
 
 // handleToolCall processes a tool/call request.
 func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map[string]interface{}, userID int32) error {
 	params, ok := req["params"].(map[string]interface{})
 	if !ok {
-		return h.sendSSEError(c, "INVALID_REQUEST", "")
+		return sendSSEError(c, "INVALID_REQUEST", "")
 	}
 
 	name, ok := params["name"].(string)
 	if !ok {
-		return h.sendSSEError(c, "INVALID_REQUEST", "")
+		return sendSSEError(c, "INVALID_REQUEST", "")
 	}
 
 	arguments, ok := params["arguments"].(map[string]interface{})
@@ -217,13 +218,13 @@ func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map
 
 	// 验证工具调用
 	if err := ValidateToolCall(name, arguments); err != nil {
-		return h.sendSSEError(c, "INVALID_ARGUMENTS", err.Error())
+		return sendSSEError(c, "INVALID_ARGUMENTS", err.Error())
 	}
 
 	// 查找并执行处理器
 	handler, ok := toolHandlerMap[name]
 	if !ok {
-		return h.sendSSEError(c, "UNKNOWN_TOOL", fmt.Sprintf("unknown tool: %s", name))
+		return sendSSEError(c, "UNKNOWN_TOOL", fmt.Sprintf("unknown tool: %s", name))
 	}
 
 	result, err := handler(h, ctx, userID, arguments)
@@ -231,16 +232,16 @@ func (h *MCPHandler) handleToolCall(ctx context.Context, c echo.Context, req map
 		return h.sendServiceError(c, err)
 	}
 
-	return h.sendSSEEvent(c, "tools/call/response", map[string]interface{}{
+	return sendSSEEvent(c, "tools/call/response", map[string]interface{}{
 		"result": result,
 	})
 }
 
 // sendServiceError converts service errors to MCP errors.
-func (h *MCPHandler) sendServiceError(c echo.Context, err error) error {
+func (_ *MCPHandler) sendServiceError(c echo.Context, err error) error {
 	// 简化版本：直接返回错误
 	// 下一任务会实现完整的 gRPC 错误转换
-	return h.sendSSEError(c, "INTERNAL_ERROR", err.Error())
+	return sendSSEError(c, "INTERNAL_ERROR", err.Error())
 }
 
 // HandleHTTPToolCall handles standard MCP JSON-RPC over HTTP requests
@@ -304,9 +305,25 @@ func (h *MCPHandler) HandleHTTPToolCall(c echo.Context) error {
 	}
 
 	// 5. 处理不同的方法
-	method, _ := req["method"].(string)
+	methodValue, ok := req["method"]
+	method, methodOK := methodValue.(string)
+	if !ok || !methodOK {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"jsonrpc": "2.0",
+			"error": map[string]interface{}{
+				"code":    -32600,
+				"message": "Invalid Request",
+			},
+			"id": req["id"],
+		})
+	}
 	id := req["id"]
-	params, _ := req["params"].(map[string]interface{})
+	params := map[string]interface{}{}
+	if paramsValue, ok := req["params"]; ok {
+		if castParams, ok := paramsValue.(map[string]interface{}); ok {
+			params = castParams
+		}
+	}
 
 	switch method {
 	case "initialize":
@@ -339,8 +356,25 @@ func (h *MCPHandler) HandleHTTPToolCall(c echo.Context) error {
 
 	case "tools/call":
 		// 调用工具
-		name, _ := params["name"].(string)
-		arguments, _ := params["arguments"].(map[string]interface{})
+		nameValue, ok := params["name"]
+		name, nameOK := nameValue.(string)
+		if !ok || !nameOK {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"jsonrpc": "2.0",
+				"id":      id,
+				"error": map[string]interface{}{
+					"code":    -32602,
+					"message": "missing tool name",
+				},
+			})
+		}
+
+		arguments := map[string]interface{}{}
+		if argumentsValue, ok := params["arguments"]; ok {
+			if castArguments, ok := argumentsValue.(map[string]interface{}); ok {
+				arguments = castArguments
+			}
+		}
 
 		if err := ValidateToolCall(name, arguments); err != nil {
 			return c.JSON(http.StatusOK, map[string]interface{}{

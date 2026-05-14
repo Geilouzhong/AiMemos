@@ -54,7 +54,7 @@ func (s *ConnectServiceHandler) RegisterConnectHandlers(mux *http.ServeMux, opts
 
 // wrap converts (path, handler) return value to a struct for cleaner iteration.
 // 同时创建一个中间件，将 HTTP Request 存入 context，供后续的 activity logging 使用
-func (s *ConnectServiceHandler) wrap(path string, handler http.Handler) struct {
+func (_ *ConnectServiceHandler) wrap(path string, handler http.Handler) struct {
 	path    string
 	handler http.Handler
 } {

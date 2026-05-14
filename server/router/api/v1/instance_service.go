@@ -267,8 +267,6 @@ func convertInstanceMemoRelatedSettingToStore(setting *v1pb.InstanceSetting_Memo
 		Reactions:                setting.Reactions,
 	}
 }
-
-
 func (s *APIV1Service) GetInstanceAdmin(ctx context.Context) (*v1pb.User, error) {
 	// Try to find admin user by listing all users and finding the first HOST or ADMIN
 	userList, err := s.Store.ListUsers(ctx, &store.FindUser{})
