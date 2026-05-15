@@ -30,7 +30,7 @@ const (
 
 	// Memos container settings for migration testing.
 	MemosDockerImage   = "neosmemo/memos"
-	StableMemosVersion = "stable" // Always points to the latest stable release
+	StableMemosVersion = "0.26.0" // Pin to a version older than the current schema for upgrade testing
 )
 
 var (
