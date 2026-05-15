@@ -1,11 +1,14 @@
 services:
   memos:
-    image: neosmemo/memos:stable
-    container_name: memos
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+    image: aimemos:local
+    container_name: aimemos
     environment:
       MEMOS_ENABLE_MCP: "true"
       MEMOS_MCP_PATH: /mcp
     volumes:
       - ~/.memos/:/var/opt/memos
     ports:
-      - 5230:5230
+      - "5230:5230"
