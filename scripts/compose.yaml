@@ -3,6 +3,10 @@ services:
     build:
       context: ..
       dockerfile: scripts/Dockerfile
+      args:
+        ALPINE_MIRROR: https://mirrors.aliyun.com/alpine
+        GOPROXY: https://goproxy.cn,direct
+        GOSUMDB: sum.golang.google.cn
     image: aimemos:local
     container_name: aimemos
     environment:

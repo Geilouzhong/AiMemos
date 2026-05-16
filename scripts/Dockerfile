@@ -1,8 +1,17 @@
 FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS backend
+
+ARG ALPINE_MIRROR=https://mirrors.aliyun.com/alpine
+ARG GOPROXY=https://goproxy.cn,direct
+ARG GOSUMDB=sum.golang.google.cn
+
+RUN sed -i "s#https\?://dl-cdn.alpinelinux.org/alpine#${ALPINE_MIRROR}#g" /etc/apk/repositories || true
 WORKDIR /backend-build
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates
+
+ENV GOPROXY=${GOPROXY} \
+    GOSUMDB=${GOSUMDB}
 
 # Copy go mod files and download dependencies (cached layer)
 COPY go.mod go.sum ./
@@ -27,6 +36,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 # Use minimal Alpine with security updates
 FROM alpine:3.21 AS monolithic
+
+ARG ALPINE_MIRROR=https://mirrors.aliyun.com/alpine
+
+RUN sed -i "s#https\?://dl-cdn.alpinelinux.org/alpine#${ALPINE_MIRROR}#g" /etc/apk/repositories || true
 
 # Install runtime dependencies and create non-root user in single layer
 RUN apk add --no-cache tzdata ca-certificates && \
