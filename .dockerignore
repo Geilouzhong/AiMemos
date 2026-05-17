@@ -1,6 +1,8 @@
 web/node_modules
 web/dist
-server/router/frontend/dist
+server/router/frontend/dist/*
+!server/router/frontend/dist/
+!server/router/frontend/dist/index.html
 .git
 .github
 build/
