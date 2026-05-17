@@ -22,7 +22,7 @@ const SignIn = () => {
   const currentUser = useCurrentUser();
   const [identityProviderList, setIdentityProviderList] = useState<IdentityProvider[]>([]);
   const { generalSetting: instanceGeneralSetting } = useInstance();
-  const [signInMode, setSignInMode] = useState<"password" | "guest">("password");
+  const [signInMode, setSignInMode] = useState<"password" | "guest">("guest");
 
   // Redirect to root page if already signed in as a normal user.
   useEffect(() => {
@@ -87,6 +87,9 @@ const SignIn = () => {
           <p className="ml-2 text-5xl text-foreground opacity-80">{instanceGeneralSetting.customProfile?.title || "Memos"}</p>
         </div>
         <div className="w-full grid grid-cols-2 gap-2 mb-2">
+          <Button type="button" variant={signInMode === "guest" ? "default" : "outline"} onClick={() => setSignInMode("guest")}>
+            {t("auth.guest-sign-in")}
+          </Button>
           <Button
             type="button"
             variant={signInMode === "password" ? "default" : "outline"}
@@ -94,9 +97,6 @@ const SignIn = () => {
             disabled={instanceGeneralSetting.disallowPasswordAuth}
           >
             {t("auth.password-sign-in")}
-          </Button>
-          <Button type="button" variant={signInMode === "guest" ? "default" : "outline"} onClick={() => setSignInMode("guest")}>
-            {t("auth.guest-sign-in")}
           </Button>
         </div>
         {signInMode === "password" ? (
