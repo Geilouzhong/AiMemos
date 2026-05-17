@@ -22,11 +22,10 @@ jobs:
         with:
           github_token: ${{ github.token }}
       - name: buf lint
-        uses: bufbuild/buf-lint-action@v1
-        with:
-          input: "proto"
+        run: cd proto && buf lint
       - name: buf format
         run: |
+          cd proto
           if [[ $(buf format -d) ]]; then
             echo "Run 'buf format -d'"
             exit 1
