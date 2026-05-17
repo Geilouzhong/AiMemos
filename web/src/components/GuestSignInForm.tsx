@@ -69,6 +69,7 @@ function GuestSignInForm() {
             readOnly={actionBtnLoadingState.isLoading}
             placeholder={t("auth.guest-code-placeholder")}
             value={code}
+            autoFocus
             autoCapitalize="off"
             spellCheck={false}
             onChange={handleCodeInputChanged}
