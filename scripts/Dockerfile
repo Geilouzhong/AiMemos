@@ -1,3 +1,13 @@
+FROM --platform=$BUILDPLATFORM node:22-alpine AS frontend
+
+WORKDIR /frontend-build/web
+
+COPY web/package.json web/pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
+
+COPY web/ ./
+RUN pnpm release
+
 FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS backend
 
 ARG ALPINE_MIRROR=https://mirrors.aliyun.com/alpine
@@ -21,8 +31,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 # Copy source code (use .dockerignore to exclude unnecessary files)
 COPY . .
 
-# Please build frontend first, so that the static files are available.
-# Refer to `pnpm release` in package.json for the build command.
+# Inject frontend build output generated in the dedicated frontend stage.
+COPY --from=frontend /frontend-build/server/router/frontend/dist ./server/router/frontend/dist
+
 ARG TARGETOS TARGETARCH VERSION COMMIT
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \

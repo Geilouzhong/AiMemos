@@ -3,6 +3,7 @@ tmp
 
 # Frontend asset
 web/dist
+server/router/frontend/dist
 
 # Build artifacts
 build/
