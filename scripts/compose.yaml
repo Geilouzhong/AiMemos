@@ -12,6 +12,7 @@ services:
     environment:
       MEMOS_ENABLE_MCP: "true"
       MEMOS_MCP_PATH: /mcp
+      TZ: Asia/Shanghai
     volumes:
       - ~/.memos/:/var/opt/memos
     ports:

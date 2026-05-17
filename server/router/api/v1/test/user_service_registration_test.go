@@ -253,3 +253,49 @@ func TestUpdateUserGuestFlag(t *testing.T) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "permission denied")
 }
+
+func TestUpdateUserActivityTracking(t *testing.T) {
+	ctx := context.Background()
+	ts := NewTestService(t)
+	defer ts.Cleanup()
+
+	adminUser, err := ts.CreateHostUser(ctx, "admin")
+	require.NoError(t, err)
+	adminCtx := ts.CreateUserContext(ctx, adminUser.ID)
+
+	createdUser, err := ts.Service.CreateUser(adminCtx, &apiv1.CreateUserRequest{
+		User: &apiv1.User{
+			Username: "member-activity",
+			Password: "password123",
+		},
+	})
+	require.NoError(t, err)
+	require.False(t, createdUser.EnableActivityTracking)
+
+	updatedUser, err := ts.Service.UpdateUser(adminCtx, &apiv1.UpdateUserRequest{
+		User: &apiv1.User{
+			Name:                   createdUser.Name,
+			EnableActivityTracking: true,
+		},
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"enable_activity_tracking"}},
+	})
+	require.NoError(t, err)
+	require.True(t, updatedUser.EnableActivityTracking)
+
+	fetchedUser, err := ts.Service.GetUser(adminCtx, &apiv1.GetUserRequest{Name: createdUser.Name})
+	require.NoError(t, err)
+	require.True(t, fetchedUser.EnableActivityTracking)
+
+	listResp, err := ts.Service.ListUsers(adminCtx, &apiv1.ListUsersRequest{})
+	require.NoError(t, err)
+
+	var listedUser *apiv1.User
+	for _, user := range listResp.Users {
+		if user.Name == createdUser.Name {
+			listedUser = user
+			break
+		}
+	}
+	require.NotNil(t, listedUser)
+	require.True(t, listedUser.EnableActivityTracking)
+	}
