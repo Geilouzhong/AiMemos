@@ -284,7 +284,7 @@ func (s *APIV1Service) ListMemos(ctx context.Context, request *v1pb.ListMemosReq
 	user, err := s.fetchCurrentUser(ctx)
 	if err == nil && user != nil && user.EnableActivityTracking {
 		if req := getHTTPRequestFromContext(ctx); req != nil {
-			ip, port := extractIPAndPort(req.RemoteAddr)
+			ip, port := extractClientIPAndPort(req)
 			// 异步记录日志，避免阻塞主流程
 			go func() {
 				for _, memo := range memos {
@@ -356,7 +356,7 @@ func (s *APIV1Service) GetMemo(ctx context.Context, request *v1pb.GetMemoRequest
 	user, err := s.fetchCurrentUser(ctx)
 	if err == nil && user != nil && user.EnableActivityTracking && memo.CreatorID != user.ID {
 		if req := getHTTPRequestFromContext(ctx); req != nil {
-			ip, port := extractIPAndPort(req.RemoteAddr)
+			ip, port := extractClientIPAndPort(req)
 			// 异步记录日志，避免阻塞主流程
 			go func() {
 				if err := logMemoActivity(user.ID, memo.UID, user.Username, ip, port); err != nil {

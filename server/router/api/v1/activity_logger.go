@@ -3,7 +3,9 @@ package v1
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -63,6 +65,27 @@ func logMemoActivity(userID int32, memoID string, username string, ip string, po
 	}
 
 	return nil
+}
+
+// extractClientIPAndPort resolves the original client IP from proxy headers first,
+// then falls back to RemoteAddr when requests come directly to the app.
+func extractClientIPAndPort(r *http.Request) (string, int) {
+	if r == nil {
+		return "", 0
+	}
+
+	if forwardedFor := r.Header.Get("X-Forwarded-For"); forwardedFor != "" {
+		// X-Forwarded-For may contain multiple comma-separated IPs.
+		if ip := strings.TrimSpace(strings.Split(forwardedFor, ",")[0]); ip != "" {
+			return ip, 0
+		}
+	}
+
+	if realIP := strings.TrimSpace(r.Header.Get("X-Real-IP")); realIP != "" {
+		return realIP, 0
+	}
+
+	return extractIPAndPort(r.RemoteAddr)
 }
 
 // extractIPAndPort 从 RemoteAddr 字符串中提取 IP 和端口。
