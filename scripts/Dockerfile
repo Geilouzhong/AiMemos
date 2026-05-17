@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM node:22-alpine AS frontend
 WORKDIR /frontend-build/web
 
 COPY web/package.json web/pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate && pnpm install --frozen-lockfile
 
 COPY web/ ./
 RUN pnpm release
