@@ -232,6 +232,8 @@ type Memo struct {
 	DisplayTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=display_time,json=displayTime,proto3" json:"display_time,omitempty"`
 	// Required. The content of the memo in Markdown format.
 	Content string `protobuf:"bytes,7,opt,name=content,proto3" json:"content,omitempty"`
+	// Optional. The title of the memo.
+	Title string `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`
 	// The visibility of the memo.
 	Visibility Visibility `protobuf:"varint,9,opt,name=visibility,proto3,enum=memos.api.v1.Visibility" json:"visibility,omitempty"`
 	// Output only. The tags extracted from the content.
@@ -332,6 +334,13 @@ func (x *Memo) GetDisplayTime() *timestamppb.Timestamp {
 func (x *Memo) GetContent() string {
 	if x != nil {
 		return x.Content
+	}
+	return ""
+}
+
+func (x *Memo) GetTitle() string {
+	if x != nil {
+		return x.Title
 	}
 	return ""
 }
@@ -1812,7 +1821,7 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\rreaction_type\x18\x04 \x01(\tB\x03\xe0A\x02R\freactionType\x12@\n" +
 	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime:X\xeaAU\n" +
-	"\x15memos.api.v1/Reaction\x12!memos/{memo}/reactions/{reaction}\x1a\x04name*\treactions2\breaction\"\xd8\b\n" +
+	"\x15memos.api.v1/Reaction\x12!memos/{memo}/reactions/{reaction}\x1a\x04name*\treactions2\breaction\"\xf3\b\n" +
 	"\x04Memo\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12.\n" +
 	"\x05state\x18\x02 \x01(\x0e2\x13.memos.api.v1.StateB\x03\xe0A\x02R\x05state\x123\n" +
@@ -1823,7 +1832,8 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\vupdate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\n" +
 	"updateTime\x12B\n" +
 	"\fdisplay_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\vdisplayTime\x12\x1d\n" +
-	"\acontent\x18\a \x01(\tB\x03\xe0A\x02R\acontent\x12=\n" +
+	"\acontent\x18\a \x01(\tB\x03\xe0A\x02R\acontent\x12\x19\n" +
+	"\x05title\x18\b \x01(\tB\x03\xe0A\x01R\x05title\x12=\n" +
 	"\n" +
 	"visibility\x18\t \x01(\x0e2\x18.memos.api.v1.VisibilityB\x03\xe0A\x02R\n" +
 	"visibility\x12\x17\n" +

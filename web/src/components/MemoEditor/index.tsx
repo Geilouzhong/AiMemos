@@ -9,7 +9,7 @@ import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/utils/i18n";
 import { convertVisibilityFromString } from "@/utils/memo";
-import { EditorContent, EditorMetadata, EditorToolbar, FocusModeExitButton, FocusModeOverlay } from "./components";
+import { EditorContent, EditorMetadata, EditorTitle, EditorToolbar, FocusModeExitButton, FocusModeOverlay } from "./components";
 import { FOCUS_MODE_STYLES } from "./constants";
 import type { EditorRefActions } from "./Editor";
 import { useAutoSave, useFocusMode, useKeyboard, useMemoInit } from "./hooks";
@@ -142,6 +142,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
         <FocusModeExitButton isActive={state.ui.isFocusMode} onToggle={handleToggleFocusMode} title={t("editor.exit-focus-mode")} />
 
         {/* Editor content grows to fill available space in focus mode */}
+        <EditorTitle />
         <EditorContent ref={editorRef} placeholder={placeholder} autoFocus={autoFocus} />
 
         {/* Metadata and toolbar grouped together at bottom */}

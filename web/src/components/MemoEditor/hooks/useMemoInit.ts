@@ -35,6 +35,7 @@ export const useMemoInit = (
           const loadedState = await memoService.load(memoName);
           dispatch(
             actions.initMemo({
+              title: loadedState.title,
               content: loadedState.content,
               metadata: loadedState.metadata,
               timestamps: loadedState.timestamps,

@@ -8,6 +8,7 @@ import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { Link } from "react-router-dom";
 import { defaultMarkerIcon, ThemedTileLayer } from "@/components/map/map-utils";
+import { getMemoDisplayTitle } from "@/helpers/memo-title";
 import { useInfiniteMemos } from "@/hooks/useMemoQueries";
 import { cn } from "@/lib/utils";
 import { State } from "@/types/proto/api/v1/common_pb";
@@ -108,7 +109,7 @@ const UserMemoMap = ({ creator, className }: Props) => {
                       <ArrowUpRightIcon className="h-3 w-3" />
                     </Link>
                   </div>
-                  <div className="line-clamp-3 py-0.5 text-xs font-sans leading-snug text-foreground">{memo.snippet || "No content"}</div>
+                  <div className="line-clamp-3 py-0.5 text-xs font-sans leading-snug text-foreground">{getMemoDisplayTitle(memo)}</div>
                 </div>
               </Popup>
             </Marker>

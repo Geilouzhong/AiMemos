@@ -45,6 +45,7 @@ type Memo struct {
 	UpdatedTs int64
 
 	// Domain specific fields
+	Title      string
 	Content    string
 	Visibility Visibility
 	Pinned     bool
@@ -96,6 +97,7 @@ type UpdateMemo struct {
 	CreatedTs  *int64
 	UpdatedTs  *int64
 	RowStatus  *RowStatus
+	Title      *string
 	Content    *string
 	Visibility *Visibility
 	Pinned     *bool

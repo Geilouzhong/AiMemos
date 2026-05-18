@@ -14,7 +14,7 @@ import (
 )
 
 func (d *DB) CreateMemo(ctx context.Context, create *store.Memo) (*store.Memo, error) {
-	fields := []string{"uid", "creator_id", "content", "visibility", "payload"}
+	fields := []string{"uid", "creator_id", "title", "content", "visibility", "payload"}
 	payload := "{}"
 	if create.Payload != nil {
 		payloadBytes, err := protojson.Marshal(create.Payload)
@@ -23,7 +23,7 @@ func (d *DB) CreateMemo(ctx context.Context, create *store.Memo) (*store.Memo, e
 		}
 		payload = string(payloadBytes)
 	}
-	args := []any{create.UID, create.CreatorID, create.Content, create.Visibility, payload}
+	args := []any{create.UID, create.CreatorID, create.Title, create.Content, create.Visibility, payload}
 
 	// Add custom timestamps if provided
 	if create.CreatedTs != 0 {
@@ -120,6 +120,7 @@ func (d *DB) ListMemos(ctx context.Context, find *store.FindMemo) ([]*store.Memo
 		`memo.created_ts AS created_ts`,
 		`memo.updated_ts AS updated_ts`,
 		`memo.row_status AS row_status`,
+		`memo.title AS title`,
 		`memo.visibility AS visibility`,
 		`memo.pinned AS pinned`,
 		`memo.payload AS payload`,
@@ -159,6 +160,7 @@ func (d *DB) ListMemos(ctx context.Context, find *store.FindMemo) ([]*store.Memo
 			&memo.CreatedTs,
 			&memo.UpdatedTs,
 			&memo.RowStatus,
+			&memo.Title,
 			&memo.Visibility,
 			&memo.Pinned,
 			&payloadBytes,
@@ -211,6 +213,9 @@ func (d *DB) UpdateMemo(ctx context.Context, update *store.UpdateMemo) error {
 	}
 	if v := update.RowStatus; v != nil {
 		set, args = append(set, "row_status = "+placeholder(len(args)+1)), append(args, *v)
+	}
+	if v := update.Title; v != nil {
+		set, args = append(set, "title = "+placeholder(len(args)+1)), append(args, *v)
 	}
 	if v := update.Content; v != nil {
 		set, args = append(set, "content = "+placeholder(len(args)+1)), append(args, *v)

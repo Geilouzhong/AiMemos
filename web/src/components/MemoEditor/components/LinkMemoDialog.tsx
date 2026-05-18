@@ -1,6 +1,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { getMemoDisplayTitle } from "@/helpers/memo-title";
 import { useTranslate } from "@/utils/i18n";
 import type { LinkMemoDialogProps } from "../types";
 
@@ -70,7 +71,7 @@ export const LinkMemoDialog = ({
                       {memo.displayTime && timestampDate(memo.displayTime).toLocaleString()}
                     </p>
                     <p className="mt-0.5 text-sm leading-5 line-clamp-2">
-                      {searchText ? highlightSearchText(memo.content, searchText) : memo.snippet}
+                      {searchText ? highlightSearchText(memo.content, searchText) : getMemoDisplayTitle(memo)}
                     </p>
                   </div>
                 </div>

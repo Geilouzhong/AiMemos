@@ -6,6 +6,7 @@ import type { LocalFile } from "../types/attachment";
 export type LoadingKey = "saving" | "uploading" | "loading";
 
 export interface EditorState {
+  title: string;
   content: string;
   metadata: {
     visibility: Visibility;
@@ -31,7 +32,11 @@ export interface EditorState {
 }
 
 export type EditorAction =
-  | { type: "INIT_MEMO"; payload: { content: string; metadata: EditorState["metadata"]; timestamps: EditorState["timestamps"] } }
+  | {
+      type: "INIT_MEMO";
+      payload: { title: string; content: string; metadata: EditorState["metadata"]; timestamps: EditorState["timestamps"] };
+    }
+  | { type: "UPDATE_TITLE"; payload: string }
   | { type: "UPDATE_CONTENT"; payload: string }
   | { type: "SET_METADATA"; payload: Partial<EditorState["metadata"]> }
   | { type: "ADD_ATTACHMENT"; payload: Attachment }
@@ -48,6 +53,7 @@ export type EditorAction =
   | { type: "RESET" };
 
 export const initialState: EditorState = {
+  title: "",
   content: "",
   metadata: {
     visibility: Visibility.PRIVATE,

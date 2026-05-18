@@ -25,9 +25,14 @@ function buildUpdateMask(
   const mask = new Set<string>();
   const patch: Partial<Memo> = {
     name: prevMemo.name,
+    title: state.title,
     content: state.content,
   };
 
+  if (!isEqual(state.title, prevMemo.title)) {
+    mask.add("title");
+    patch.title = state.title;
+  }
   if (!isEqual(state.content, prevMemo.content)) {
     mask.add("content");
     patch.content = state.content;
@@ -103,6 +108,7 @@ export const memoService = {
 
     // 3. Create new memo or comment
     const memoData = create(MemoSchema, {
+      title: state.title,
       content: state.content,
       visibility: state.metadata.visibility,
       attachments: toAttachmentReferences(allAttachments),
@@ -126,6 +132,7 @@ export const memoService = {
     const memo = await memoServiceClient.getMemo({ name: memoName });
 
     return {
+      title: memo.title,
       content: memo.content,
       metadata: {
         visibility: memo.visibility,

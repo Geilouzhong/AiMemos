@@ -187,6 +187,9 @@ message Memo {
   // Required. The content of the memo in Markdown format.
   string content = 7 [(google.api.field_behavior) = REQUIRED];
 
+  // Optional. The title of the memo.
+  string title = 8 [(google.api.field_behavior) = OPTIONAL];
+
   // The visibility of the memo.
   Visibility visibility = 9 [(google.api.field_behavior) = REQUIRED];
 

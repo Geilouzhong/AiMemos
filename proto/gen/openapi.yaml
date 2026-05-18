@@ -2489,6 +2489,9 @@ components:
                 content:
                     type: string
                     description: Required. The content of the memo in Markdown format.
+                title:
+                    type: string
+                    description: Optional. The title of the memo.
                 visibility:
                     enum:
                         - VISIBILITY_UNSPECIFIED

@@ -6,9 +6,16 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
     case "INIT_MEMO":
       return {
         ...state,
+        title: action.payload.title,
         content: action.payload.content,
         metadata: action.payload.metadata,
         timestamps: action.payload.timestamps,
+      };
+
+    case "UPDATE_TITLE":
+      return {
+        ...state,
+        title: action.payload,
       };
 
     case "UPDATE_CONTENT":

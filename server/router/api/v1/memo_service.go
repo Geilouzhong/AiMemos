@@ -43,6 +43,7 @@ func (s *APIV1Service) CreateMemo(ctx context.Context, request *v1pb.CreateMemoR
 	create := &store.Memo{
 		UID:        memoUID,
 		CreatorID:  user.ID,
+		Title:      request.Memo.Title,
 		Content:    request.Memo.Content,
 		Visibility: convertVisibilityToStore(request.Memo.Visibility),
 	}
@@ -416,6 +417,9 @@ func (s *APIV1Service) UpdateMemo(ctx context.Context, request *v1pb.UpdateMemoR
 			}
 			update.Content = &memo.Content
 			update.Payload = memo.Payload
+		} else if path == "title" {
+			memo.Title = request.Memo.Title
+			update.Title = &memo.Title
 		} else if path == "visibility" {
 			instanceMemoRelatedSetting, err := s.Store.GetInstanceMemoRelatedSetting(ctx)
 			if err != nil {
