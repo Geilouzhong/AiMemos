@@ -179,11 +179,9 @@ func logMCPError(context string, err error) {
 
 // toolHandlerMap maps tool names to their handler functions.
 var toolHandlerMap = map[string]func(*MCPHandler, context.Context, int32, map[string]interface{}) (map[string]interface{}, error){
-	"create_memo": (*MCPHandler).handleCreateMemo,
-	"get_memo":    (*MCPHandler).handleGetMemo,
 	"list_memos":  (*MCPHandler).handleListMemos,
-	"update_memo": (*MCPHandler).handleUpdateMemo,
-	"delete_memo": (*MCPHandler).handleDeleteMemo,
+	"pull_memo":   (*MCPHandler).handlePullMemo,
+	"push_memo":   (*MCPHandler).handlePushMemo,
 }
 
 // handleMCPRequest processes an incoming MCP request.

@@ -14,29 +14,8 @@ type MCPTool struct {
 // ToolRegistry holds all available MCP tools.
 var ToolRegistry = []MCPTool{
 	{
-		Name:        "create_memo",
-		Description: "创建新笔记，支持 Markdown 格式、标签（#work #AI）和提及（@username）",
-		InputSchema: map[string]interface{}{
-			"type": "object",
-			"properties": map[string]interface{}{
-				"content": map[string]interface{}{
-					"type":        "string",
-					"description": "笔记内容，支持 Markdown 格式、标签（#work #AI）和提及（@username）",
-					"minLength":   1,
-					"maxLength":   10000,
-				},
-				"visibility": map[string]interface{}{
-					"type":        "string",
-					"enum":        []string{"PRIVATE", "PROTECTED", "PUBLIC"},
-					"description": "可见性：PRIVATE（仅自己）、PROTECTED（登录用户）、PUBLIC（所有人）",
-				},
-			},
-			"required": []string{"content"},
-		},
-	},
-	{
-		Name:        "get_memo",
-		Description: "获取单个笔记的详细内容",
+		Name:        "pull_memo",
+		Description: "将单个笔记拉取为本地 Markdown 文件，供本地编辑后再推送",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -44,8 +23,12 @@ var ToolRegistry = []MCPTool{
 					"type":        "string",
 					"description": "笔记 ID 或 UID，例如：123 或 abc123",
 				},
+				"path": map[string]interface{}{
+					"type":        "string",
+					"description": "本地 Markdown 文件路径，例如：/workspace/memos/weekly-review.md",
+				},
 			},
-			"required": []string{"id"},
+			"required": []string{"id", "path"},
 		},
 	},
 	{
@@ -69,37 +52,22 @@ var ToolRegistry = []MCPTool{
 		},
 	},
 	{
-		Name:        "update_memo",
-		Description: "更新已有笔记的内容",
+		Name:        "push_memo",
+		Description: "将本地 Markdown 文件内容推送回远端笔记，并进行冲突检查",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
-				"id": map[string]interface{}{
+				"path": map[string]interface{}{
 					"type":        "string",
-					"description": "笔记 ID 或 UID",
+					"description": "本地 Markdown 文件路径",
 				},
-				"content": map[string]interface{}{
-					"type":        "string",
-					"description": "新的笔记内容",
-					"minLength":   1,
-					"maxLength":   10000,
-				},
-			},
-			"required": []string{"id", "content"},
-		},
-	},
-	{
-		Name:        "delete_memo",
-		Description: "删除笔记（不可撤销）",
-		InputSchema: map[string]interface{}{
-			"type": "object",
-			"properties": map[string]interface{}{
-				"id": map[string]interface{}{
-					"type":        "string",
-					"description": "要删除的笔记 ID 或 UID",
+				"check_conflict": map[string]interface{}{
+					"type":        "boolean",
+					"description": "是否在推送前检查远端更新时间冲突，默认 true",
+					"default":     true,
 				},
 			},
-			"required": []string{"id"},
+			"required": []string{"path"},
 		},
 	},
 }

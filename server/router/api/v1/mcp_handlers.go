@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -68,11 +69,15 @@ func (h *MCPHandler) handleCreateMemo(ctx context.Context, _ int32, args map[str
 	}, nil
 }
 
-// handleGetMemo implements the get_memo tool.
-func (h *MCPHandler) handleGetMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
+// handlePullMemo implements the pull_memo tool.
+func (h *MCPHandler) handlePullMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
 	id, ok := args["id"].(string)
 	if !ok {
 		return nil, errors.New("id is required")
+	}
+	path, ok := args["path"].(string)
+	if !ok || strings.TrimSpace(path) == "" {
+		return nil, errors.New("path is required")
 	}
 
 	req := &v1pb.GetMemoRequest{
@@ -82,6 +87,10 @@ func (h *MCPHandler) handleGetMemo(ctx context.Context, _ int32, args map[string
 	memo, err := h.GetMemo(ctx, req)
 	if err != nil {
 		return nil, errors.Errorf("memo not found: %s", id)
+	}
+	resolvedPath, err := writeMemoToLocalFile(path, memo)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to write memo to local file")
 	}
 
 	baseURL := h.profile.InstanceURL
@@ -103,6 +112,10 @@ func (h *MCPHandler) handleGetMemo(ctx context.Context, _ int32, args map[string
 			"updatedAt":  memo.UpdateTime,
 			"tags":       memo.Tags,
 			"url":        fmt.Sprintf("%s/m/%s", baseURL, uid),
+		},
+		"file": map[string]interface{}{
+			"path":    resolvedPath,
+			"written": true,
 		},
 	}, nil
 }
@@ -159,25 +172,86 @@ func (h *MCPHandler) handleListMemos(ctx context.Context, _ int32, args map[stri
 	}, nil
 }
 
-// handleUpdateMemo implements the update_memo tool.
-func (h *MCPHandler) handleUpdateMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
-	id, ok := args["id"].(string)
-	if !ok {
-		return nil, errors.New("id is required")
+
+// handlePushMemo implements the push_memo tool.
+func (h *MCPHandler) handlePushMemo(ctx context.Context, _ int32, args map[string]interface{}) (map[string]interface{}, error) {
+	path, ok := args["path"].(string)
+	if !ok || strings.TrimSpace(path) == "" {
+		return nil, errors.New("path is required")
+	}
+	checkConflict := true
+	if raw, ok := args["check_conflict"].(bool); ok {
+		checkConflict = raw
 	}
 
-	content, ok := args["content"].(string)
-	if !ok || strings.TrimSpace(content) == "" {
-		return nil, errors.New("content is required")
+	content, meta, err := readMemoFromLocalFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read local memo files")
+	}
+
+	baseURL := h.profile.InstanceURL
+	if baseURL == "" {
+		baseURL = "http://localhost:5230"
+	}
+
+	if meta == nil || strings.TrimSpace(meta.MemoName) == "" {
+		createReq := &v1pb.CreateMemoRequest{
+			Memo: &v1pb.Memo{
+				Title:   strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
+				Content: content,
+				Visibility: v1pb.Visibility_PRIVATE,
+			},
+		}
+		memo, err := h.CreateMemo(ctx, createReq)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create memo from local file")
+		}
+		if err := updateMemoMetadataInLocalFile(path, memo); err != nil {
+			return nil, errors.Wrap(err, "failed to write created memo metadata back to file")
+		}
+		uid := strings.TrimPrefix(memo.Name, "memos/")
+		return map[string]interface{}{
+			"memo": map[string]interface{}{
+				"id":         uid,
+				"uid":        uid,
+				"name":       memo.Name,
+				"title":      memo.Title,
+				"content":    memo.Content,
+				"visibility": memo.Visibility.String(),
+				"createdAt":  memo.CreateTime,
+				"updatedAt":  memo.UpdateTime,
+				"url":        fmt.Sprintf("%s/m/%s", baseURL, uid),
+			},
+			"created": true,
+			"file": map[string]interface{}{
+				"path": path,
+			},
+		}, nil
+	}
+
+	remoteMemo, err := h.GetMemo(ctx, &v1pb.GetMemoRequest{Name: meta.MemoName})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to fetch remote memo before push")
+	}
+	if conflict, message := checkMemoPushConflict(meta, remoteMemo); conflict && checkConflict {
+		return map[string]interface{}{
+			"conflict": true,
+			"message":  message,
+			"memo": map[string]interface{}{
+				"name":      remoteMemo.Name,
+				"updatedAt": remoteMemo.UpdateTime,
+			},
+		}, nil
 	}
 
 	req := &v1pb.UpdateMemoRequest{
 		Memo: &v1pb.Memo{
-			Name:    fmt.Sprintf("memos/%s", id),
+			Name:    meta.MemoName,
+			Title:   meta.Title,
 			Content: content,
 		},
 		UpdateMask: &fieldmaskpb.FieldMask{
-			Paths: []string{"content"},
+			Paths: []string{"title", "content"},
 		},
 	}
 
@@ -186,19 +260,18 @@ func (h *MCPHandler) handleUpdateMemo(ctx context.Context, _ int32, args map[str
 		return nil, err
 	}
 
-	baseURL := h.profile.InstanceURL
-	if baseURL == "" {
-		baseURL = "http://localhost:5230"
-	}
-
 	// Extract UID from name (format: memos/{uid})
 	uid := strings.TrimPrefix(memo.Name, "memos/")
+	if err := updateMemoMetadataInLocalFile(path, memo); err != nil {
+		return nil, errors.Wrap(err, "failed to refresh memo metadata after push")
+	}
 
 	return map[string]interface{}{
 		"memo": map[string]interface{}{
 			"id":         uid,
 			"uid":        uid,
 			"name":       memo.Name,
+			"title":      memo.Title,
 			"content":    memo.Content,
 			"visibility": memo.Visibility.String(),
 			"createdAt":  memo.CreateTime,
@@ -206,6 +279,8 @@ func (h *MCPHandler) handleUpdateMemo(ctx context.Context, _ int32, args map[str
 			"tags":       memo.Tags,
 			"url":        fmt.Sprintf("%s/m/%s", baseURL, uid),
 		},
+		"conflict": false,
+		"updated":  true,
 	}, nil
 }
 

@@ -17,7 +17,7 @@ import (
 
 func TestToolRegistry(t *testing.T) {
 	t.Run("工具数量正确", func(t *testing.T) {
-		assert.Len(t, ToolRegistry, 5)
+		assert.Len(t, ToolRegistry, 3)
 	})
 
 	t.Run("工具名称唯一", func(t *testing.T) {
@@ -28,49 +28,25 @@ func TestToolRegistry(t *testing.T) {
 		}
 	})
 
-	t.Run("验证 create_memo 必填参数", func(t *testing.T) {
-		err := ValidateToolCall("create_memo", map[string]interface{}{})
+	t.Run("验证 pull_memo 必填参数", func(t *testing.T) {
+		err := ValidateToolCall("pull_memo", map[string]interface{}{})
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "missing required field")
 
-		err = ValidateToolCall("create_memo", map[string]interface{}{
-			"content": "test",
+		err = ValidateToolCall("pull_memo", map[string]interface{}{
+			"id": "123",
+			"path": "/tmp/memo.md",
 		})
 		assert.NoError(t, err)
 	})
 
-	t.Run("验证 get_memo 必填参数", func(t *testing.T) {
-		err := ValidateToolCall("get_memo", map[string]interface{}{})
+	t.Run("验证 push_memo 必填参数", func(t *testing.T) {
+		err := ValidateToolCall("push_memo", map[string]interface{}{})
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "missing required field")
 
-		err = ValidateToolCall("get_memo", map[string]interface{}{
-			"id": "123",
-		})
-		assert.NoError(t, err)
-	})
-
-	t.Run("验证 update_memo 必填参数", func(t *testing.T) {
-		err := ValidateToolCall("update_memo", map[string]interface{}{
-			"id": "123",
-		})
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "missing required field")
-
-		err = ValidateToolCall("update_memo", map[string]interface{}{
-			"id":      "123",
-			"content": "updated content",
-		})
-		assert.NoError(t, err)
-	})
-
-	t.Run("验证 delete_memo 必填参数", func(t *testing.T) {
-		err := ValidateToolCall("delete_memo", map[string]interface{}{})
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "missing required field")
-
-		err = ValidateToolCall("delete_memo", map[string]interface{}{
-			"id": "123",
+		err = ValidateToolCall("push_memo", map[string]interface{}{
+			"path": "/tmp/memo.md",
 		})
 		assert.NoError(t, err)
 	})
@@ -100,7 +76,7 @@ func TestGetToolsList(t *testing.T) {
 		assert.Contains(t, result, "tools")
 		tools, ok := result["tools"].([]map[string]interface{})
 		require.True(t, ok)
-		assert.Len(t, tools, 5)
+		assert.Len(t, tools, 3)
 
 		// 验证每个工具都有必需的字段
 		for _, tool := range tools {
@@ -172,10 +148,10 @@ func TestMCPHTTPInitializedNotification(t *testing.T) {
 }
 
 func TestMCPToolSchema(t *testing.T) {
-	t.Run("create_memo schema 结构正确", func(t *testing.T) {
+	t.Run("pull_memo schema 结构正确", func(t *testing.T) {
 		var tool *MCPTool
 		for i := range ToolRegistry {
-			if ToolRegistry[i].Name == "create_memo" {
+			if ToolRegistry[i].Name == "pull_memo" {
 				tool = &ToolRegistry[i]
 				break
 			}
@@ -186,20 +162,15 @@ func TestMCPToolSchema(t *testing.T) {
 
 		props, ok := tool.InputSchema["properties"].(map[string]interface{})
 		require.True(t, ok)
-		assert.Contains(t, props, "content")
-		assert.Contains(t, props, "visibility")
+		assert.Contains(t, props, "id")
+		assert.Contains(t, props, "path")
 
-		content, ok := props["content"].(map[string]interface{})
+		id, ok := props["id"].(map[string]interface{})
 		require.True(t, ok)
-		assert.Equal(t, "string", content["type"])
-		assert.Equal(t, 1, content["minLength"])
-		assert.Equal(t, 10000, content["maxLength"])
+		assert.Equal(t, "string", id["type"])
 
-		visibility, ok := props["visibility"].(map[string]interface{})
+		path, ok := props["path"].(map[string]interface{})
 		require.True(t, ok)
-		assert.Equal(t, "string", visibility["type"])
-		assert.Contains(t, visibility["enum"], "PRIVATE")
-		assert.Contains(t, visibility["enum"], "PROTECTED")
-		assert.Contains(t, visibility["enum"], "PUBLIC")
+		assert.Equal(t, "string", path["type"])
 	})
 }
